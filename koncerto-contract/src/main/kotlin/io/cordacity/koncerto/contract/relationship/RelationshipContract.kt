@@ -35,6 +35,9 @@ class RelationshipContract : Contract {
         internal const val CONTRACT_REVOCATION_LOCK_POINTERS =
             "On relationship issuance, all revocation locks must point to the relationship state."
 
+        internal const val CONTRACT_RULE_PREVIOUS_REF =
+            "On relationship issuance, the previous state reference must be null."
+
         internal const val CONTRACT_RULE_SIGNERS =
             "On relationship issuance, all participants must sign the transaction."
 
@@ -53,6 +56,7 @@ class RelationshipContract : Contract {
             CONTRACT_REVOCATION_LOCK_POINTERS using (revocationLockOutputStates.all {
                 it.pointer.linearId == relationshipOutputState.linearId
             })
+            CONTRACT_RULE_PREVIOUS_REF using (relationshipOutputState.previousStateRef == null)
             CONTRACT_RULE_SIGNERS using (relationshipOutputState.participants.all { it.owningKey in signers })
         }
     }
@@ -68,6 +72,9 @@ class RelationshipContract : Contract {
         internal const val CONTRACT_RULE_NETWORK_HASH =
             "On relationship amendment, the network hash must not change."
 
+        internal const val CONTRACT_RULE_PREVIOUS_REF =
+            "On relationship amendment, the previous state reference must be equal to the input state reference."
+
         internal const val CONTRACT_RULE_SIGNERS =
             "On relationship amendment, all participants must sign the transaction."
 
@@ -75,10 +82,12 @@ class RelationshipContract : Contract {
             CONTRACT_RULE_INPUTS using (tx.inputs.size == 1)
             CONTRACT_RULE_OUTPUTS using (tx.outputs.size == 1)
 
-            val relationshipInputState = tx.inputsOfType<RelationshipState<*>>().single()
+            val relationshipInputStateAndRef = tx.inRefsOfType<RelationshipState<*>>().single()
+            val relationshipInputState = relationshipInputStateAndRef.state.data
             val relationshipOutputState = tx.outputsOfType<RelationshipState<*>>().single()
 
             CONTRACT_RULE_NETWORK_HASH using (relationshipInputState.network == relationshipOutputState.network)
+            CONTRACT_RULE_PREVIOUS_REF using (relationshipOutputState.previousStateRef == relationshipInputStateAndRef.ref)
             CONTRACT_RULE_SIGNERS using (relationshipOutputState.participants.all { it.owningKey in signers })
         }
     }

@@ -4,6 +4,7 @@ import io.cordacity.koncerto.contract.*
 import io.cordacity.koncerto.contract.relationship.RelationshipContract
 import io.cordacity.koncerto.contract.revocation.RevocationLockContract
 import io.cordacity.koncerto.contract.revocation.RevocationLockState
+import net.corda.core.contracts.UniqueIdentifier
 import net.corda.testing.node.ledger
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -78,13 +79,28 @@ class RelationshipContractIssuanceTests : ContractTest() {
     fun `On relationship issuance, all revocation locks must point to the relationship state`() {
         services.ledger {
             transaction {
-                output(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP.copy(network = INVALID_NETWORK))
+                output(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP.copy(linearId = UniqueIdentifier()))
                 partiesOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A).forEach {
                     output(RevocationLockContract.ID, RevocationLockState.create(it, CENTRALIZED_RELATIONSHIP))
                 }
                 command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A), RevocationLockContract.Create)
                 command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A), RelationshipContract.Issue)
                 failsWith(RelationshipContract.Issue.CONTRACT_REVOCATION_LOCK_POINTERS)
+            }
+        }
+    }
+
+    @Test
+    fun `On relationship issuance, the previous state reference must be null`() {
+        services.ledger {
+            transaction {
+                output(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP.copy(previousStateRef = INVALID_STATEREF))
+                partiesOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A).forEach {
+                    output(RevocationLockContract.ID, RevocationLockState.create(it, CENTRALIZED_RELATIONSHIP))
+                }
+                command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A), RevocationLockContract.Create)
+                command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A), RelationshipContract.Issue)
+                failsWith(RelationshipContract.Issue.CONTRACT_RULE_PREVIOUS_REF)
             }
         }
     }

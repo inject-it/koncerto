@@ -36,7 +36,10 @@ object MembershipSchema {
         val networkHash: String = "",
 
         @Column(name = "is_network_operator", nullable = false)
-        val isNetworkOperator: Boolean = false
+        val isNetworkOperator: Boolean = false,
+
+        @Column(name = "hash", nullable = false, unique = true)
+        val hash: String = ""
     ) : PersistentState()
 
     private const val SCHEMA_VERSION_1 = 1

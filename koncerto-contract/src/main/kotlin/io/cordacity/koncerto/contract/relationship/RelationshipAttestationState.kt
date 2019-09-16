@@ -19,7 +19,6 @@ import net.corda.core.schemas.PersistentState
  * @property attestees A set of participants for whom the relationship state is being attested.
  * @property status Specifies whether the attestation is accepted or rejected.
  * @property metadata Allows additional information to be added to the attestation for reference.
- * @property externalId The external identity of the attestation, or null if no external identity is required.
  * @property linearId The unique identifier of the relationship attestation state.
  * @property participants The participants of the attestation state, namely the attestor, attestees and network operator.
  */
@@ -31,7 +30,7 @@ data class RelationshipAttestationState(
     override val attestees: Set<AbstractParty>,
     override val status: AttestationStatus = AttestationStatus.REJECTED,
     override val metadata: Map<String, String> = emptyMap(),
-    val externalId: String? = null
+    override val linearId: UniqueIdentifier = UniqueIdentifier()
 ) : AttestationState<RelationshipState<*>>() {
 
     companion object {
@@ -43,7 +42,7 @@ data class RelationshipAttestationState(
          * @param relationship The relationship state being attested.
          * @param status Specifies whether the attestation is accepted or rejected.
          * @param metadata Allows additional information to be added to the attestation for reference.
-         * @param externalId The external identity of the attestation, or null if no external identity is required.
+         * @param linearId The unique identifier of the relationship attestation state.
          * @return Returns a relationship attestation.
          */
         fun create(
@@ -51,7 +50,7 @@ data class RelationshipAttestationState(
             relationship: StateAndRef<RelationshipState<*>>,
             status: AttestationStatus = AttestationStatus.REJECTED,
             metadata: Map<String, String> = emptyMap(),
-            externalId: String? = null
+            linearId: UniqueIdentifier = UniqueIdentifier()
         ) = RelationshipAttestationState(
             network = relationship.state.data.network,
             pointer = AttestationPointer.create(relationship),
@@ -59,17 +58,9 @@ data class RelationshipAttestationState(
             attestees = (relationship.state.data.participants - attestor).toSet(),
             status = status,
             metadata = metadata,
-            externalId = externalId
+            linearId = linearId
         )
     }
-
-    override val linearId: UniqueIdentifier
-        get() = HashUtils.createRelationshipAttestationIdentifier(
-            network,
-            attestor,
-            pointer.linearId.id,
-            externalId
-        )
 
     /**
      * Creates an accepted attestation.
@@ -108,7 +99,7 @@ data class RelationshipAttestationState(
             normalizedNetworkName = network.normalizedName,
             networkOperator = network.operator,
             networkHash = network.hash.toString(),
-            participantHash = HashUtils.createParticipantsHash(participants.toSet()).toString(),
+            participantHash = (participants - network.operator).filterNotNull().toSet().identityHash.toString(),
             relationshipLinearId = pointer.linearId.id,
             relationshipExternalId = pointer.linearId.externalId,
             relationshipStateRefHash = pointer.stateRef.txhash.toString(),

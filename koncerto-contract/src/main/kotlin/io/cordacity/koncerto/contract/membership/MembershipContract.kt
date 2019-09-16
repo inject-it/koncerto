@@ -32,6 +32,9 @@ class MembershipContract : Contract {
         internal const val CONTRACT_RULE_ROLES =
             "On membership issuance, network operators must possess the network operator role."
 
+        internal const val CONTRACT_RULE_PREVIOUS_REF =
+            "On membership issuance, the previous state reference must be null."
+
         internal const val CONTRACT_RULE_SIGNERS =
             "On membership issuance, only the network member must sign the transaction."
 
@@ -45,6 +48,7 @@ class MembershipContract : Contract {
                 CONTRACT_RULE_ROLES using (membershipOutputState.hasRole(Role.NETWORK_OPERATOR))
             }
 
+            CONTRACT_RULE_PREVIOUS_REF using (membershipOutputState.previousStateRef == null)
             CONTRACT_RULE_SIGNERS using (membershipOutputState.identity.networkIdentity.owningKey == signers.single())
         }
     }
@@ -66,6 +70,9 @@ class MembershipContract : Contract {
         internal const val CONTRACT_RULE_ROLES =
             "On membership amendment, network operators must possess the network operator role."
 
+        internal const val CONTRACT_RULE_PREVIOUS_REF =
+            "On membership amendment, the previous state reference must be equal to the input state reference."
+
         internal const val CONTRACT_RULE_SIGNERS =
             "On membership amendment, either the network member or the network operator must sign the transaction."
 
@@ -73,7 +80,8 @@ class MembershipContract : Contract {
             CONTRACT_RULE_INPUTS using (tx.inputs.size == 1)
             CONTRACT_RULE_OUTPUTS using (tx.outputs.size == 1)
 
-            val membershipInputState = tx.inputsOfType<MembershipState<*>>().single()
+            val membershipInputStateAndRef = tx.inRefsOfType<MembershipState<*>>().single()
+            val membershipInputState = membershipInputStateAndRef.state.data
             val inputNetworkHash = membershipInputState.network.hash
             val inputNetworkIdentity = membershipInputState.identity.networkIdentity
 
@@ -88,6 +96,7 @@ class MembershipContract : Contract {
                 CONTRACT_RULE_ROLES using (membershipOutputState.hasRole(Role.NETWORK_OPERATOR))
             }
 
+            CONTRACT_RULE_PREVIOUS_REF using (membershipOutputState.previousStateRef == membershipInputStateAndRef.ref)
             CONTRACT_RULE_SIGNERS using (membershipOutputState.participants.any { it.owningKey == signers.single() })
         }
     }

@@ -14,16 +14,13 @@ import java.util.*
  * @property hash A SHA-256 hashed representation of the claim.
  */
 @CordaSerializable
-class Claim(val key: String, val value: String) : Hashable {
+class Claim(val key: String, val value: String) {
 
     val normalizedKey: String
         get() = key.toLowerCase()
 
     val normalizedValue: String
         get() = value.toLowerCase()
-
-    override val hash: SecureHash
-        get() = SecureHash.sha256("$normalizedKey$normalizedValue")
 
     /**
      * Compares this object for equality with the specified object.

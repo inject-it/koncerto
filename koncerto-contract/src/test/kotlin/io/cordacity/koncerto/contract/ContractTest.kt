@@ -11,9 +11,12 @@ import io.cordacity.koncerto.contract.relationship.RelationshipState
 import io.cordacity.koncerto.contract.revocation.RevocationLockContract
 import io.cordacity.koncerto.contract.revocation.RevocationLockState
 import net.corda.core.contracts.StateAndRef
+import net.corda.core.crypto.SecureHash
 import net.corda.core.identity.AbstractParty
 import net.corda.core.node.NotaryInfo
 import net.corda.testing.common.internal.testNetworkParameters
+import net.corda.testing.contracts.DummyContract
+import net.corda.testing.contracts.DummyState
 import net.corda.testing.core.DUMMY_NOTARY_NAME
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.dsl.LedgerDSL
@@ -23,6 +26,8 @@ import net.corda.testing.node.MockServices
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
+private typealias DSL = LedgerDSL<TestTransactionDSLInterpreter, TestLedgerDSLInterpreter>
+
 abstract class ContractTest : AutoCloseable {
 
     protected companion object {
@@ -30,7 +35,8 @@ abstract class ContractTest : AutoCloseable {
         val cordapps = listOf(
             "io.cordacity.koncerto.contract.membership",
             "io.cordacity.koncerto.contract.relationship",
-            "io.cordacity.koncerto.contract.revocation"
+            "io.cordacity.koncerto.contract.revocation",
+            "net.corda.testing.contracts"
         )
 
         val contracts = listOf(
@@ -38,7 +44,8 @@ abstract class ContractTest : AutoCloseable {
             MembershipAttestationContract.ID,
             RelationshipContract.ID,
             RelationshipAttestationContract.ID,
-            RevocationLockContract.ID
+            RevocationLockContract.ID,
+            DummyContract.PROGRAM_ID
         )
 
         fun partiesOf(vararg identities: TestIdentity) = identities.map { it.party }
@@ -66,41 +73,95 @@ abstract class ContractTest : AutoCloseable {
     @AfterEach
     private fun tearDown() = close()
 
-    protected fun initialize(
-        dsl: LedgerDSL<TestTransactionDSLInterpreter, TestLedgerDSLInterpreter>,
-        membership: MembershipState<*>,
-        attestor: AbstractParty
-    ): Pair<StateAndRef<MembershipState<*>>, MembershipAttestationState> {
-        dsl.transaction {
-            output(MembershipContract.ID, "membership", membership)
-            command(listOf(membership.identity.networkIdentity.owningKey), MembershipContract.Issue)
+    protected fun DSL.createDummyOutput(
+        label: String = SecureHash.randomSHA256().toString()
+    ): StateAndRef<DummyState> {
+        transaction {
+            output(DummyContract.PROGRAM_ID, label, DummyState(participants = partiesOf(IDENTITY_A)))
+            command(keysOf(IDENTITY_A), DummyContract.Commands.Create())
             verifies()
         }
 
-        val recordedMembership = dsl.retrieveOutputStateAndRef(MembershipState::class.java, "membership")
-        val attestation = MembershipAttestationState
-            .create(attestor, recordedMembership, AttestationStatus.ACCEPTED)
-        return Pair(recordedMembership, attestation)
+        return retrieveOutputStateAndRef(DummyState::class.java, label)
     }
 
-    protected fun initialize(
-        dsl: LedgerDSL<TestTransactionDSLInterpreter, TestLedgerDSLInterpreter>,
-        relationship: RelationshipState<*>
-    ): Pair<StateAndRef<RelationshipState<*>>, RelationshipAttestationState> {
-        dsl.transaction {
-            output(RelationshipContract.ID, "relationship", relationship)
-            relationship.participants.forEach {
-                output(RevocationLockContract.ID, RevocationLockState.create(it, relationship))
+    @Suppress("UNCHECKED_CAST")
+    protected fun DSL.initialize(
+        membershipState: MembershipState<*>,
+        label: String = SecureHash.randomSHA256().toString()
+    ): Pair<StateAndRef<MembershipState<DummyIdentity>>, MembershipState<DummyIdentity>> {
+        transaction {
+            output(MembershipContract.ID, label, membershipState)
+            command(listOf(membershipState.identity.networkIdentity.owningKey), MembershipContract.Issue)
+            verifies()
+        }
+
+        val input = retrieveOutputStateAndRef(
+            MembershipState::class.java,
+            label
+        ) as StateAndRef<MembershipState<DummyIdentity>>
+
+        return Pair(input, input.getNextOutput())
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    protected fun DSL.initialize(
+        relationshipState: RelationshipState<*>,
+        label: String = SecureHash.randomSHA256().toString()
+    ): Pair<StateAndRef<RelationshipState<DummyConfiguration>>, RelationshipState<DummyConfiguration>> {
+        transaction {
+            val keys = relationshipState.participants.map { it.owningKey }
+            output(RelationshipContract.ID, label, relationshipState)
+            relationshipState.participants.forEach {
+                output(RevocationLockContract.ID, RevocationLockState.create(it, relationshipState))
             }
-            val keys = relationship.participants.map { it.owningKey }
             command(keys, RevocationLockContract.Create)
             command(keys, RelationshipContract.Issue)
             verifies()
         }
 
-        val recordedRelationship = dsl.retrieveOutputStateAndRef(RelationshipState::class.java, "relationship")
-        val attestation = RelationshipAttestationState
-            .create(IDENTITY_A.party, recordedRelationship, AttestationStatus.ACCEPTED)
-        return Pair(recordedRelationship, attestation)
+        val input = retrieveOutputStateAndRef(
+            RelationshipState::class.java,
+            label
+        ) as StateAndRef<RelationshipState<DummyConfiguration>>
+
+        return Pair(input, input.getNextOutput())
+    }
+
+    protected fun DSL.initialize(
+        membershipState: MembershipState<*>,
+        attestor: AbstractParty,
+        label: String = SecureHash.randomSHA256().toString()
+    ): Pair<StateAndRef<MembershipState<*>>, MembershipAttestationState> {
+        transaction {
+            output(MembershipContract.ID, label, membershipState)
+            command(listOf(membershipState.identity.networkIdentity.owningKey), MembershipContract.Issue)
+            verifies()
+        }
+
+        val membership = retrieveOutputStateAndRef(MembershipState::class.java, label)
+        val attestation = MembershipAttestationState.create(attestor, membership, AttestationStatus.ACCEPTED)
+        return Pair(membership, attestation)
+    }
+
+    protected fun DSL.initialize(
+        relationshipState: RelationshipState<*>,
+        attestor: AbstractParty,
+        label: String = SecureHash.randomSHA256().toString()
+    ): Pair<StateAndRef<RelationshipState<*>>, RelationshipAttestationState> {
+        transaction {
+            output(RelationshipContract.ID, label, relationshipState)
+            relationshipState.participants.forEach {
+                output(RevocationLockContract.ID, RevocationLockState.create(it, relationshipState))
+            }
+            val keys = relationshipState.participants.map { it.owningKey }
+            command(keys, RevocationLockContract.Create)
+            command(keys, RelationshipContract.Issue)
+            verifies()
+        }
+
+        val relationship = retrieveOutputStateAndRef(RelationshipState::class.java, label)
+        val attestation = RelationshipAttestationState.create(attestor, relationship, AttestationStatus.ACCEPTED)
+        return Pair(relationship, attestation)
     }
 }

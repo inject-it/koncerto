@@ -15,7 +15,7 @@ class MembershipAttestationContractIssuanceTests : ContractTest() {
     fun `On membership attestation issuance, the transaction must include the Issue command`() {
         services.ledger {
             transaction {
-                val (membership, attestation) = initialize(this@ledger, CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
+                val (membership, attestation) = initialize(CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
                 output(MembershipAttestationContract.ID, attestation)
                 reference(membership.ref)
                 fails()
@@ -29,7 +29,7 @@ class MembershipAttestationContractIssuanceTests : ContractTest() {
     fun `On membership attestation issuance, zero states must be consumed`() {
         services.ledger {
             transaction {
-                val (membership, attestation) = initialize(this@ledger, CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
+                val (membership, attestation) = initialize(CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
                 input(MembershipAttestationContract.ID, attestation)
                 output(MembershipAttestationContract.ID, attestation)
                 reference(membership.ref)
@@ -43,7 +43,7 @@ class MembershipAttestationContractIssuanceTests : ContractTest() {
     fun `On membership attestation issuance, only one state must be created`() {
         services.ledger {
             transaction {
-                val (membership, attestation) = initialize(this@ledger, CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
+                val (membership, attestation) = initialize(CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
                 output(MembershipAttestationContract.ID, attestation)
                 output(MembershipAttestationContract.ID, attestation)
                 reference(membership.ref)
@@ -57,7 +57,7 @@ class MembershipAttestationContractIssuanceTests : ContractTest() {
     fun `On membership attestation issuance, only one membership state must be referenced`() {
         services.ledger {
             transaction {
-                val (membership, attestation) = initialize(this@ledger, CENTRALIZED_MEMBERSHIP_A, IDENTITY_B.party)
+                val (membership, attestation) = initialize(CENTRALIZED_MEMBERSHIP_A, IDENTITY_B.party)
                 output(MembershipAttestationContract.ID, attestation)
                 reference(MembershipContract.ID, membership.state.data)
                 reference(membership.ref)
@@ -71,7 +71,7 @@ class MembershipAttestationContractIssuanceTests : ContractTest() {
     fun `On membership attestation issuance, the attestation pointer must point to the referenced membership state`() {
         services.ledger {
             transaction {
-                val (membership, attestation) = initialize(this@ledger, CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
+                val (membership, attestation) = initialize(CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
                 val oldPointer = attestation.pointer
                 val newPointer = AttestationPointer(UniqueIdentifier(), oldPointer.stateRef, oldPointer.type)
                 output(MembershipAttestationContract.ID, attestation.copy(pointer = newPointer))
@@ -86,7 +86,7 @@ class MembershipAttestationContractIssuanceTests : ContractTest() {
     fun `On membership attestation issuance, the attestee must be the network identity of the referenced membership state`() {
         services.ledger {
             transaction {
-                val (membership, attestation) = initialize(this@ledger, CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
+                val (membership, attestation) = initialize(CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
                 output(MembershipAttestationContract.ID, attestation.copy(attestees = setOf(IDENTITY_C.party)))
                 reference(membership.ref)
                 command(keysOf(OPERATOR_A), MembershipAttestationContract.Issue)
@@ -99,7 +99,7 @@ class MembershipAttestationContractIssuanceTests : ContractTest() {
     fun `On membership attestation amendment, if present, only the network operator must attest membership`() {
         services.ledger {
             transaction {
-                val (membership, attestation) = initialize(this@ledger, CENTRALIZED_MEMBERSHIP_A, IDENTITY_B.party)
+                val (membership, attestation) = initialize(CENTRALIZED_MEMBERSHIP_A, IDENTITY_B.party)
                 output(MembershipAttestationContract.ID, attestation)
                 reference(membership.ref)
                 command(keysOf(IDENTITY_B), MembershipAttestationContract.Issue)
@@ -112,7 +112,7 @@ class MembershipAttestationContractIssuanceTests : ContractTest() {
     fun `On membership attestation issuance, the attestation and membership network hash must be equal`() {
         services.ledger {
             transaction {
-                val (membership, attestation) = initialize(this@ledger, CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
+                val (membership, attestation) = initialize(CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
                 output(MembershipAttestationContract.ID, attestation.copy(network = INVALID_NETWORK))
                 reference(membership.ref)
                 command(keysOf(OPERATOR_A), MembershipAttestationContract.Issue)
@@ -125,7 +125,7 @@ class MembershipAttestationContractIssuanceTests : ContractTest() {
     fun `On membership attestation issuance, only the attestor must sign the transaction`() {
         services.ledger {
             transaction {
-                val (membership, attestation) = initialize(this@ledger, CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
+                val (membership, attestation) = initialize(CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
                 output(MembershipAttestationContract.ID, attestation)
                 reference(membership.ref)
                 command(keysOf(IDENTITY_B), MembershipAttestationContract.Issue)

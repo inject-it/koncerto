@@ -1,13 +1,12 @@
 package io.cordacity.koncerto.contract.relationship
 
-import io.cordacity.koncerto.contract.Configuration
-import io.cordacity.koncerto.contract.HashUtils
-import io.cordacity.koncerto.contract.Network
-import io.cordacity.koncerto.contract.NetworkState
+import io.cordacity.koncerto.contract.*
 import io.cordacity.koncerto.contract.relationship.RelationshipSchema.RelationshipEntity
 import io.cordacity.koncerto.contract.relationship.RelationshipSchema.RelationshipSchemaV1
 import net.corda.core.contracts.BelongsToContract
+import net.corda.core.contracts.StateRef
 import net.corda.core.contracts.UniqueIdentifier
+import net.corda.core.crypto.SecureHash
 import net.corda.core.identity.AbstractParty
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
@@ -25,32 +24,29 @@ import net.corda.core.schemas.PersistentState
  * the relationship state can amend it. If attestations were linear, this would pose a vulnerability, as participants
  * would implicitly attest to updated relationship states which could have undesirable consequences on the network.
  *
+ * The network operator is considered a participant of this state because they have authority to create, amend
+ * or even revoke relationships as they see fit, however relationships are still considered invalid until attested.
  *
  * @property network The identity of the network.
  * @property configuration The configuration which determines how participants of the relationship cooperate.
- * @property externalId The external identity of the relationship, or null if no external identity is required.
+ * @property previousStateRef The state ref to the previous version of the state, or null if this is this first version.
  * @property linearId The unique identifier of the state.
  * @property participants The relationship configuration network identities, and optionally the network operator.
+ * @property hash A SHA-256 hash that uniquely identifies this version of the state.
  */
 @BelongsToContract(RelationshipContract::class)
 data class RelationshipState<T : Configuration>(
     override val network: Network,
     val configuration: T,
-    val externalId: String? = null
-) : NetworkState() {
+    val previousStateRef: StateRef? = null,
+    override val linearId: UniqueIdentifier = UniqueIdentifier()
+) : NetworkState(), Hashable {
 
-    override val linearId: UniqueIdentifier
-        get() = HashUtils.createRelationshipIdentifier(network, configuration, externalId)
+    override val hash: SecureHash
+        get() = SecureHash.sha256("${network.hash}${configuration.hash}$previousStateRef")
 
-    /**
-     * Gets a list of participants of this state.
-     *
-     * The network operator is considered a participant of this state because they have authority to create, amend
-     * or even revoke relationships as they see fit, however relationships are still considered invalid until attested.
-     */
     override val participants: List<AbstractParty>
         get() = (configuration.networkIdentities + network.operator).filterNotNull()
-
 
     /**
      * Maps this state to a persistent state.
@@ -63,7 +59,8 @@ data class RelationshipState<T : Configuration>(
             normalizedNetworkName = network.normalizedName,
             networkOperator = network.operator,
             networkHash = network.hash.toString(),
-            participantHash = HashUtils.createParticipantsHash(participants.toSet()).toString()
+            identityHash = configuration.networkIdentities.identityHash.toString(),
+            hash = hash.toString()
         )
         else -> throw IllegalArgumentException("Unrecognised schema: $schema.")
     }

@@ -1,11 +1,13 @@
 package io.cordacity.koncerto.contract
 
-import net.corda.core.contracts.CommandData
-import net.corda.core.contracts.Contract
-import net.corda.core.contracts.ContractClassName
-import net.corda.core.contracts.requireSingleCommand
+import io.cordacity.koncerto.contract.membership.MembershipState
+import io.cordacity.koncerto.contract.relationship.RelationshipState
+import net.corda.core.contracts.*
+import net.corda.core.crypto.SecureHash
+import net.corda.core.identity.AbstractParty
 import net.corda.core.transactions.LedgerTransaction
 import java.security.PublicKey
+import java.util.*
 import kotlin.reflect.KClass
 
 interface VerifiedCommand : CommandData {
@@ -26,3 +28,16 @@ internal val KClass<*>.contractClassName: ContractClassName
             throw IllegalArgumentException("Must be called from companion object.")
         } else this.java.enclosingClass.canonicalName
     }
+
+val Set<AbstractParty>.identityHash: SecureHash
+    get() = SecureHash.sha256(toSortedSet(IdentityComparator).joinToString())
+
+fun <T : Identity> StateAndRef<MembershipState<T>>.getNextOutput() = state.data.copy(previousStateRef = ref)
+
+fun <T : Configuration> StateAndRef<RelationshipState<T>>.getNextOutput() = state.data.copy(previousStateRef = ref)
+
+private object IdentityComparator : Comparator<AbstractParty> {
+    override fun compare(p0: AbstractParty?, p1: AbstractParty?): Int {
+        return (p0?.hashCode() ?: 0).compareTo(p1?.hashCode() ?: 0)
+    }
+}

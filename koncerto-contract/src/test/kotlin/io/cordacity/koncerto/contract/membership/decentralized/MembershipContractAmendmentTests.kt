@@ -14,8 +14,9 @@ class MembershipContractAmendmentTests : ContractTest() {
     fun `On membership amendment, the transaction must include the Amend command`() {
         services.ledger {
             transaction {
-                input(MembershipContract.ID, DECENTRALIZED_MEMBERSHIP_A)
-                output(MembershipContract.ID, DECENTRALIZED_MEMBERSHIP_A)
+                val (input, output) = initialize(DECENTRALIZED_MEMBERSHIP_A)
+                input(input.ref)
+                output(MembershipContract.ID, output)
                 fails()
                 command(keysOf(IDENTITY_A), MembershipContract.Amend)
                 verifies()
@@ -27,9 +28,10 @@ class MembershipContractAmendmentTests : ContractTest() {
     fun `On membership amendment, only one state must be consumed`() {
         services.ledger {
             transaction {
-                input(MembershipContract.ID, DECENTRALIZED_MEMBERSHIP_A)
-                input(MembershipContract.ID, DECENTRALIZED_MEMBERSHIP_A)
-                output(MembershipContract.ID, DECENTRALIZED_MEMBERSHIP_A)
+                val (input, output) = initialize(DECENTRALIZED_MEMBERSHIP_A)
+                input(input.ref)
+                input(createDummyOutput().ref)
+                output(MembershipContract.ID, output)
                 command(keysOf(IDENTITY_A), MembershipContract.Amend)
                 failsWith(MembershipContract.Amend.CONTRACT_RULE_INPUTS)
             }
@@ -40,9 +42,10 @@ class MembershipContractAmendmentTests : ContractTest() {
     fun `On membership amendment, only one state must be created`() {
         services.ledger {
             transaction {
-                input(MembershipContract.ID, DECENTRALIZED_MEMBERSHIP_A)
-                output(MembershipContract.ID, DECENTRALIZED_MEMBERSHIP_A)
-                output(MembershipContract.ID, DECENTRALIZED_MEMBERSHIP_A)
+                val (input, output) = initialize(DECENTRALIZED_MEMBERSHIP_A)
+                input(input.ref)
+                output(MembershipContract.ID, output)
+                output(MembershipContract.ID, output)
                 command(keysOf(IDENTITY_A), MembershipContract.Amend)
                 failsWith(MembershipContract.Amend.CONTRACT_RULE_OUTPUTS)
             }
@@ -53,8 +56,9 @@ class MembershipContractAmendmentTests : ContractTest() {
     fun `On membership amendment, the network hash must not change`() {
         services.ledger {
             transaction {
-                input(MembershipContract.ID, DECENTRALIZED_MEMBERSHIP_A)
-                output(MembershipContract.ID, DECENTRALIZED_MEMBERSHIP_A.copy(network = INVALID_NETWORK))
+                val (input, output) = initialize(DECENTRALIZED_MEMBERSHIP_A)
+                input(input.ref)
+                output(MembershipContract.ID, output.copy(network = INVALID_NETWORK))
                 command(keysOf(IDENTITY_A), MembershipContract.Amend)
                 failsWith(MembershipContract.Amend.CONTRACT_RULE_NETWORK_HASH)
             }
@@ -65,8 +69,9 @@ class MembershipContractAmendmentTests : ContractTest() {
     fun `On membership amendment, the network identity must not change`() {
         services.ledger {
             transaction {
-                input(MembershipContract.ID, DECENTRALIZED_MEMBERSHIP_A)
-                output(MembershipContract.ID, DECENTRALIZED_MEMBERSHIP_A.copy(identity = DUMMY_IDENTITY_B))
+                val (input, output) = initialize(DECENTRALIZED_MEMBERSHIP_A)
+                input(input.ref)
+                output(MembershipContract.ID, output.copy(identity = DUMMY_IDENTITY_B))
                 command(keysOf(IDENTITY_A), MembershipContract.Amend)
                 failsWith(MembershipContract.Amend.CONTRACT_RULE_NETWORK_IDENTITY)
             }
@@ -77,8 +82,9 @@ class MembershipContractAmendmentTests : ContractTest() {
     fun `On membership amendment, either the network member or the network operator must sign the transaction`() {
         services.ledger {
             transaction {
-                input(MembershipContract.ID, DECENTRALIZED_MEMBERSHIP_A)
-                output(MembershipContract.ID, DECENTRALIZED_MEMBERSHIP_A)
+                val (input, output) = initialize(DECENTRALIZED_MEMBERSHIP_A)
+                input(input.ref)
+                output(MembershipContract.ID, output)
                 command(keysOf(IDENTITY_B), MembershipContract.Amend)
                 failsWith(MembershipContract.Amend.CONTRACT_RULE_SIGNERS)
             }

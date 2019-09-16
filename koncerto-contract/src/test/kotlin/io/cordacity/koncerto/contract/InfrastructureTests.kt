@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 class InfrastructureTests {
 
     @Test
-    fun `Roles should be equal by normalizedName and hash`() {
+    fun `Roles should be equal by normalizedName`() {
 
         // Arrange
         val roles = setOf(
@@ -22,14 +22,10 @@ class InfrastructureTests {
         // Assert
         assertEquals(1, roles.size)
         assertEquals("user", roles.single().normalizedName)
-        assertEquals(
-            "04F8996DA763B7A969B1028EE3007569EAF3A635486DDAB211D512C85B9DF8FB",
-            roles.single().hash.toString()
-        )
     }
 
     @Test
-    fun `Claims should be equal by normalizedKey, normalizedValue and hash`() {
+    fun `Claims should be equal by normalizedKey and normalizedValue`() {
 
         // Arrange
         val claims = setOf(
@@ -45,10 +41,6 @@ class InfrastructureTests {
         assertEquals(1, claims.size)
         assertEquals("key", claims.single().normalizedKey)
         assertEquals("value", claims.single().normalizedValue)
-        assertEquals(
-            "B4BFE7C31FB4B7CD245E74AB89FDB66F2286DC6831B57F112239E0B6131D321C",
-            claims.single().hash.toString()
-        )
     }
 
     @Test

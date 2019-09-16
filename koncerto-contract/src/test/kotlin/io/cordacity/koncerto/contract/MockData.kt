@@ -9,6 +9,8 @@ import io.cordacity.koncerto.contract.DummyIdentity.Companion.DUMMY_OPERATOR_A
 import io.cordacity.koncerto.contract.membership.MembershipState
 import io.cordacity.koncerto.contract.relationship.RelationshipState
 import io.cordacity.koncerto.contract.revocation.RevocationLockState
+import net.corda.core.contracts.StateRef
+import net.corda.core.crypto.SecureHash
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
@@ -48,7 +50,6 @@ val CENTRALIZED_PARTICIPANTS = setOf(IDENTITY_A.party, IDENTITY_B.party, IDENTIT
 
 val DECENTRALIZED_NETWORK = Network("Decentralized Network")
 val CENTRALIZED_NETWORK_A = Network("Centralized Network A", OPERATOR_A.party)
-val INVALID_NETWORK = Network("Invalid Network")
 
 val DECENTRALIZED_MEMBERSHIP_A = MembershipState(DECENTRALIZED_NETWORK, DUMMY_IDENTITY_A)
 val DECENTRALIZED_MEMBERSHIP_B = MembershipState(DECENTRALIZED_NETWORK, DUMMY_IDENTITY_B)
@@ -63,3 +64,6 @@ val CENTRALIZED_RELATIONSHIP = RelationshipState(CENTRALIZED_NETWORK_A, CENTRALI
 val DECENTRALIZED_RELATIONSHIP = RelationshipState(DECENTRALIZED_NETWORK, DECENTRALIZED_CONFIGURATION)
 
 val REVOCATION_LOCK = RevocationLockState.create(IDENTITY_A.party, DECENTRALIZED_RELATIONSHIP)
+
+val INVALID_NETWORK = Network("Invalid Network")
+val INVALID_STATEREF = StateRef(SecureHash.zeroHash, 0)
