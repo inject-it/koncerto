@@ -14,7 +14,7 @@ import kotlin.test.assertEquals
 class IssueMembershipFlowTests : MockNetworkFlowTest() {
 
     private fun initialize(initiator: StartedMockNode): Pair<SignedTransaction, MembershipState<DummyIdentity>> {
-        val transaction = initiator.createMembership(DECENTRALIZED_NETWORK, setOf(bob.party, charlie.party))
+        val transaction = initiator.issueMembership(DECENTRALIZED_NETWORK, setOf(bob.party, charlie.party))
         val membership = transaction.tx.outputsOfType<MembershipState<DummyIdentity>>().single()
 
         return transaction to membership

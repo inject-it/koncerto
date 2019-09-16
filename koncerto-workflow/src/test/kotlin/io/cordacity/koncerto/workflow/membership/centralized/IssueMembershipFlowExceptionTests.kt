@@ -13,7 +13,7 @@ import kotlin.test.assertFails
 class IssueMembershipFlowExceptionTests : MockNetworkFlowTest() {
 
     private fun initialize(initiator: StartedMockNode): Pair<SignedTransaction, MembershipState<DummyIdentity>> {
-        val transaction = initiator.createMembership(CENTRALIZED_NETWORK, setOf(operator.party))
+        val transaction = initiator.issueMembership(CENTRALIZED_NETWORK, setOf(operator.party))
         val membership = transaction.tx.outputsOfType<MembershipState<DummyIdentity>>().single()
 
         return transaction to membership

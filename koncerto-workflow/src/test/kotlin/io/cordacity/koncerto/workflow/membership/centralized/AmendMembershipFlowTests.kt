@@ -17,7 +17,7 @@ class AmendMembershipFlowTests : MockNetworkFlowTest() {
     private fun initialize(initiator: StartedMockNode): Pair<SignedTransaction, MembershipState<DummyIdentity>> {
         val observers = setOf(alice.party, operator.party) - initiator.party
 
-        val oldMembership = alice.createMembership(CENTRALIZED_NETWORK, setOf(operator.party))
+        val oldMembership = alice.issueMembership(CENTRALIZED_NETWORK, setOf(operator.party))
             .tx.outRefsOfType<MembershipState<DummyIdentity>>().single()
 
         val membership = oldMembership.getNextOutput().addRoles("Power User")

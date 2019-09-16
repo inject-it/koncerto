@@ -16,7 +16,7 @@ class RevokeMembershipFlowTests : MockNetworkFlowTest() {
     private fun initialize(initiator: StartedMockNode): SignedTransaction {
         val observers = setOf(alice.party, operator.party) - initiator.party
 
-        val oldMembership = alice.createMembership(CENTRALIZED_NETWORK, setOf(operator.party))
+        val oldMembership = alice.issueMembership(CENTRALIZED_NETWORK, setOf(operator.party))
             .tx.outRefsOfType<MembershipState<DummyIdentity>>().single()
 
         return initiator.revokeMembership(oldMembership, observers)

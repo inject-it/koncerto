@@ -32,6 +32,9 @@ abstract class MockNetworkFlowTest {
     val CENTRALIZED_NETWORK by lazy { Network("Centralized Network", operator.party) }
     val DECENTRALIZED_NETWORK by lazy { Network("Decentralized Network") }
 
+    val CENTRALIZED_RELATIONSHIP by lazy { RelationshipState(CENTRALIZED_NETWORK, RELATIONSHIP_CONFIGURATION) }
+    val DECENTRALIZED_RELATIONSHIP by lazy { RelationshipState(DECENTRALIZED_NETWORK, RELATIONSHIP_CONFIGURATION) }
+
     val RELATIONSHIP_CONFIGURATION by lazy {
         DummyConfig(
             "Test Relationship",
@@ -110,7 +113,7 @@ abstract class MockNetworkFlowTest {
         network.stopNodes()
     }
 
-    fun StartedMockNode.createMembership(
+    fun StartedMockNode.issueMembership(
         network: Network,
         observers: Set<Party> = emptySet(),
         roles: Set<Role> = emptySet()

@@ -16,7 +16,7 @@ import kotlin.test.assertEquals
 class AmendMembershipAttestationFlowTests : MockNetworkFlowTest() {
 
     private fun initialize(initiator: StartedMockNode): Pair<SignedTransaction, MembershipAttestationState> {
-        val membership = alice.createMembership(DECENTRALIZED_NETWORK, setOf(bob.party, charlie.party))
+        val membership = alice.issueMembership(DECENTRALIZED_NETWORK, setOf(bob.party, charlie.party))
             .tx.outRefsOfType<MembershipState<DummyIdentity>>().single()
 
         val oldAttestation = initiator.issueMembershipAttestation(
