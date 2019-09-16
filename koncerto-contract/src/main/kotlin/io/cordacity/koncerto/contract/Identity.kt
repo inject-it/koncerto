@@ -1,6 +1,7 @@
 package io.cordacity.koncerto.contract
 
-import net.corda.core.identity.AbstractParty
+import net.corda.core.crypto.SecureHash
+import net.corda.core.identity.Party
 import net.corda.core.serialization.CordaSerializable
 import java.util.*
 
@@ -8,10 +9,14 @@ import java.util.*
  * Represents the base class for implementing identity.
  *
  * @property networkIdentity The Corda network identity of the participant.
+ * @property hash A SHA-256 hashed representation of the identity.
  */
 @CordaSerializable
-abstract class Identity {
-    abstract val networkIdentity: AbstractParty
+abstract class Identity : Hashable {
+    abstract val networkIdentity: Party
+
+    final override val hash: SecureHash
+        get() = SecureHash.sha256(networkIdentity.name.toString())
 
     /**
      * Compares this object for equality with the specified object.

@@ -12,7 +12,7 @@ import java.util.*
  * @property hash A SHA-256 hashed representation of the role.
  */
 @CordaSerializable
-class Role(val name: String) {
+class Role(val name: String) : Hashable {
 
     companion object {
 
@@ -22,9 +22,11 @@ class Role(val name: String) {
         val NETWORK_OPERATOR = Role("Network Operator")
     }
 
-    val normalizedName: String get() = name.toLowerCase()
+    val normalizedName: String
+        get() = name.toLowerCase()
 
-    val hash: SecureHash get() = SecureHash.sha256(normalizedName)
+    override val hash: SecureHash
+        get() = SecureHash.sha256(normalizedName)
 
     /**
      * Compares this object for equality with the specified object.

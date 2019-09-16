@@ -14,11 +14,13 @@ import java.util.*
  * @property hash A SHA-256 hashed representation of the identity of a network.
  */
 @CordaSerializable
-class Network(val name: String, val operator: AbstractParty? = null) {
+class Network(val name: String, val operator: AbstractParty? = null) : Hashable {
 
-    val normalizedName: String get() = name.toLowerCase()
+    val normalizedName: String
+        get() = name.toLowerCase()
 
-    val hash: SecureHash get() = SecureHash.sha256("$normalizedName$operator")
+    override val hash: SecureHash
+        get() = SecureHash.sha256("$normalizedName$operator")
 
     /**
      * Compares this object for equality with the specified object.

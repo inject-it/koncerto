@@ -11,12 +11,13 @@ import io.cordacity.koncerto.contract.relationship.RelationshipState
 import io.cordacity.koncerto.contract.revocation.RevocationLockState
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.CordaX500Name
+import net.corda.core.identity.Party
 import net.corda.core.serialization.CordaSerializable
 import net.corda.testing.core.TestIdentity
 
 @CordaSerializable
 class DummyIdentity(
-    override val networkIdentity: AbstractParty
+    override val networkIdentity: Party
 ) : Identity() {
     companion object {
         val DUMMY_IDENTITY_A = DummyIdentity(IDENTITY_A.party)

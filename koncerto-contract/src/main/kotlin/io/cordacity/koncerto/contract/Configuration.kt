@@ -15,13 +15,15 @@ import java.util.*
  * @property hash A SHA-256 hashed representation of the configuration.
  */
 @CordaSerializable
-abstract class Configuration {
+abstract class Configuration : Hashable {
     abstract val name: String
     abstract val networkIdentities: Set<AbstractParty>
 
-    val normalizedName: String get() = name.toLowerCase()
+    val normalizedName: String
+        get() = name.toLowerCase()
 
-    val hash: SecureHash get() = SecureHash.sha256("$normalizedName${createParticipantsHash(networkIdentities)}")
+    override val hash: SecureHash
+        get() = SecureHash.sha256("$normalizedName${createParticipantsHash(networkIdentities)}")
 
     /**
      * Compares this object for equality with the specified object.
