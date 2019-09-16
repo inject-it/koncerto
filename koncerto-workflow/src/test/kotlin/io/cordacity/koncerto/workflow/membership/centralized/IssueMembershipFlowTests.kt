@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 
 @DisplayName("Centralized membership issuance tests")
 class IssueMembershipFlowTests : MockNetworkFlowTest() {
@@ -51,6 +52,16 @@ class IssueMembershipFlowTests : MockNetworkFlowTest() {
 
                 assertEquals(membership, recordedMembership)
             }
+        }
+    }
+
+    @Test
+    fun `IssueMembershipFlow should fail on attempts to create duplicate membership states`() {
+
+        // Assert
+        assertFails {
+            initialize(alice)
+            initialize(alice)
         }
     }
 }

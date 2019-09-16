@@ -33,6 +33,12 @@ fun FlowLogic<*>.flowSessionFor(party: AbstractParty): FlowSession {
 
 fun FlowLogic<*>.flowSessionsFor(parties: Iterable<AbstractParty>) = parties.map { flowSessionFor(it) }
 
+fun FlowLogic<*>.checkMembershipAlreadyExists(state: MembershipState<*>) {
+    if (subFlow<MembershipList>(FindLocalMembershipFlow(state)).isNotEmpty()) {
+        throw FlowException("Membership state with hash '${state.hash}' already exists in the vault.")
+    }
+}
+
 fun FlowLogic<*>.checkSessionsForAllCounterparties(state: ContractState, sessions: Iterable<FlowSession>) {
     val counterparties = state.participants - ourIdentity
     if (counterparties.isNotEmpty() && sessions.any { it.counterparty !in counterparties }) {

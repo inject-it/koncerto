@@ -28,6 +28,7 @@ class IssueMembershipFlow(
     @Suspendable
     override fun call(): SignedTransaction {
         currentStep(INITIALIZING)
+        checkMembershipAlreadyExists(membership)
         checkSessionsForAllCounterparties(membership, sessions)
 
         currentStep(GENERATING)
