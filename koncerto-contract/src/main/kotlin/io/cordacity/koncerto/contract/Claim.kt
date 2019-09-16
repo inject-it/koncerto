@@ -16,11 +16,11 @@ import java.util.*
 @CordaSerializable
 class Claim(val key: String, val value: String) {
 
-    val normalizedKey: String get() = key.toLowerCase()
+    val normalizedKey: String
+        get() = key.toLowerCase()
 
-    val normalizedValue: String get() = value.toLowerCase()
-
-    val hash: SecureHash get() = SecureHash.sha256("$normalizedKey$normalizedValue")
+    val normalizedValue: String
+        get() = value.toLowerCase()
 
     /**
      * Compares this object for equality with the specified object.

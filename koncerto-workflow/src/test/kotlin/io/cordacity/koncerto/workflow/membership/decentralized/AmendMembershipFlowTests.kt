@@ -1,5 +1,6 @@
 package io.cordacity.koncerto.workflow.membership.decentralized
 
+import io.cordacity.koncerto.contract.getNextOutput
 import io.cordacity.koncerto.contract.membership.MembershipState
 import io.cordacity.koncerto.workflow.DummyIdentity
 import io.cordacity.koncerto.workflow.MockNetworkFlowTest
@@ -17,7 +18,7 @@ class AmendMembershipFlowTests : MockNetworkFlowTest() {
         val oldMembership = alice.createMembership(DECENTRALIZED_NETWORK, setOf(bob.party, charlie.party))
             .tx.outRefsOfType<MembershipState<DummyIdentity>>().single()
 
-        val membership = oldMembership.state.data.addRoles("Power User")
+        val membership = oldMembership.getNextOutput().addRoles("Power User")
         val transaction = initiator.amendMembership(oldMembership, membership, setOf(bob.party, charlie.party))
 
         return transaction to membership

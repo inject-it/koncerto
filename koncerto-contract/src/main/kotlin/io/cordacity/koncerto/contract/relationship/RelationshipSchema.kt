@@ -31,8 +31,11 @@ object RelationshipSchema {
         @Column(name = "network_hash", nullable = false)
         val networkHash: String = "",
 
-        @Column(name = "participant_hash", nullable = false)
-        val participantHash: String = ""
+        @Column(name = "identity_hash", nullable = false)
+        val identityHash: String = "",
+
+        @Column(name = "hash", nullable = false, unique = true)
+        val hash: String = ""
     ) : PersistentState()
 
     private const val SCHEMA_VERSION_1 = 1

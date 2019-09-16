@@ -16,7 +16,7 @@ class MembershipAttestationContractRevocationTests : ContractTest() {
     fun `On membership attestation revocation, the transaction must include the Revoke command`() {
         services.ledger {
             transaction {
-                val (_, attestation) = initialize(this@ledger, CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
+                val (_, attestation) = initialize(CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
                 input(MembershipAttestationContract.ID, attestation)
                 fails()
                 command(keysOf(OPERATOR_A), MembershipAttestationContract.Revoke)
@@ -29,7 +29,7 @@ class MembershipAttestationContractRevocationTests : ContractTest() {
     fun `On membership attestation revocation, zero states must be consumed`() {
         services.ledger {
             transaction {
-                val (_, attestation) = initialize(this@ledger, CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
+                val (_, attestation) = initialize(CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
                 input(MembershipAttestationContract.ID, attestation)
                 input(MembershipAttestationContract.ID, attestation)
                 command(keysOf(OPERATOR_A), MembershipAttestationContract.Revoke)
@@ -42,7 +42,7 @@ class MembershipAttestationContractRevocationTests : ContractTest() {
     fun `On membership attestation revocation, only one state must be created`() {
         services.ledger {
             transaction {
-                val (_, attestation) = initialize(this@ledger, CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
+                val (_, attestation) = initialize(CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
                 input(MembershipAttestationContract.ID, attestation)
                 output(MembershipAttestationContract.ID, attestation)
                 command(keysOf(OPERATOR_A), MembershipAttestationContract.Revoke)
@@ -55,7 +55,7 @@ class MembershipAttestationContractRevocationTests : ContractTest() {
     fun `On membership attestation revocation, only the attestor must sign the transaction`() {
         services.ledger {
             transaction {
-                val (_, attestation) = initialize(this@ledger, CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
+                val (_, attestation) = initialize(CENTRALIZED_MEMBERSHIP_A, OPERATOR_A.party)
                 input(MembershipAttestationContract.ID, attestation)
                 command(keysOf(IDENTITY_B), MembershipAttestationContract.Revoke)
                 failsWith(MembershipAttestationContract.Revoke.CONTRACT_RULE_SIGNERS)

@@ -1,6 +1,5 @@
 package io.cordacity.koncerto.contract
 
-import io.cordacity.koncerto.contract.HashUtils.createParticipantsHash
 import net.corda.core.crypto.SecureHash
 import net.corda.core.identity.AbstractParty
 import net.corda.core.serialization.CordaSerializable
@@ -15,13 +14,15 @@ import java.util.*
  * @property hash A SHA-256 hashed representation of the configuration.
  */
 @CordaSerializable
-abstract class Configuration {
+abstract class Configuration : Hashable {
     abstract val name: String
     abstract val networkIdentities: Set<AbstractParty>
 
-    val normalizedName: String get() = name.toLowerCase()
+    val normalizedName: String
+        get() = name.toLowerCase()
 
-    val hash: SecureHash get() = SecureHash.sha256("$normalizedName${createParticipantsHash(networkIdentities)}")
+    override val hash: SecureHash
+        get() = SecureHash.sha256("$normalizedName${networkIdentities.identityHash}")
 
     /**
      * Compares this object for equality with the specified object.
@@ -46,5 +47,5 @@ abstract class Configuration {
      * Gets a string representation of this object instance.
      * @return Returns a string representation of this object instance.
      */
-    override fun toString() = "Role: name = $name, normalized name = $normalizedName"
+    override fun toString() = "Configuration: name = $name, normalized name = $normalizedName"
 }

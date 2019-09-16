@@ -1,6 +1,9 @@
 package io.cordacity.koncerto.contract.membership
 
-import io.cordacity.koncerto.contract.*
+import io.cordacity.koncerto.contract.AttestationPointer
+import io.cordacity.koncerto.contract.AttestationState
+import io.cordacity.koncerto.contract.AttestationStatus
+import io.cordacity.koncerto.contract.Network
 import io.cordacity.koncerto.contract.membership.MembershipAttestationSchema.MembershipAttestationEntity
 import io.cordacity.koncerto.contract.membership.MembershipAttestationSchema.MembershipAttestationSchemaV1
 import net.corda.core.contracts.BelongsToContract
@@ -19,7 +22,6 @@ import net.corda.core.schemas.PersistentState
  * @property attestees A set of participants for whom the membership state is being attested.
  * @property status Specifies whether the attestation is accepted or rejected.
  * @property metadata Allows additional information to be added to the attestation for reference.
- * @property externalId The external identity of the attestation, or null if no external identity is required.
  * @property linearId The unique identifier of the membership attestation state.
  * @property participants The participants of the attestation state, namely the attestor, attestees and network operator.
  */
@@ -31,7 +33,7 @@ data class MembershipAttestationState(
     override val attestees: Set<AbstractParty>,
     override val status: AttestationStatus = AttestationStatus.REJECTED,
     override val metadata: Map<String, String> = emptyMap(),
-    val externalId: String? = null
+    override val linearId: UniqueIdentifier = UniqueIdentifier()
 ) : AttestationState<MembershipState<*>>() {
 
     companion object {
@@ -43,7 +45,7 @@ data class MembershipAttestationState(
          * @param membership The membership state being attested.
          * @param status Specifies whether the attestation is accepted or rejected.
          * @param metadata Allows additional information to be added to the attestation for reference.
-         * @param externalId The external identity of the attestation, or null if no external identity is required.
+         * @param linearId The unique identifier of the membership attestation state.
          * @return Returns a membership attestation.
          */
         fun create(
@@ -51,7 +53,7 @@ data class MembershipAttestationState(
             membership: StateAndRef<MembershipState<*>>,
             status: AttestationStatus = AttestationStatus.REJECTED,
             metadata: Map<String, String> = emptyMap(),
-            externalId: String? = null
+            linearId: UniqueIdentifier = UniqueIdentifier()
         ) = MembershipAttestationState(
             network = membership.state.data.network,
             pointer = AttestationPointer.create(membership),
@@ -59,7 +61,7 @@ data class MembershipAttestationState(
             attestees = setOf(membership.state.data.identity.networkIdentity),
             status = status,
             metadata = metadata,
-            externalId = externalId
+            linearId = linearId
         )
     }
 
@@ -67,16 +69,8 @@ data class MembershipAttestationState(
         check(attestees.size == 1) { "There can only be one attestee for a membership attestation state." }
     }
 
-    override val linearId: UniqueIdentifier
-        get() = HashUtils.createMembershipAttestationIdentifier(
-            network,
-            attestor,
-            attestee,
-            pointer.linearId.id,
-            externalId
-        )
-
-    val attestee: AbstractParty get() = attestees.single()
+    val attestee: AbstractParty
+        get() = attestees.single()
 
     /**
      * Creates an accepted attestation.

@@ -15,7 +15,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
     fun `On relationship attestation amendment, the transaction must include the Amend command`() {
         services.ledger {
             transaction {
-                val (relationship, attestation) = initialize(this@ledger, CENTRALIZED_RELATIONSHIP)
+                val (relationship, attestation) = initialize(CENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 input(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation)
                 reference(relationship.ref)
@@ -30,7 +30,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
     fun `On relationship attestation amendment, only one state must be consumed`() {
         services.ledger {
             transaction {
-                val (relationship, attestation) = initialize(this@ledger, CENTRALIZED_RELATIONSHIP)
+                val (relationship, attestation) = initialize(CENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 output(RelationshipAttestationContract.ID, attestation)
                 reference(relationship.ref)
                 command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A), RelationshipAttestationContract.Amend)
@@ -43,7 +43,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
     fun `On relationship attestation amendment, only one state must be created`() {
         services.ledger {
             transaction {
-                val (relationship, attestation) = initialize(this@ledger, CENTRALIZED_RELATIONSHIP)
+                val (relationship, attestation) = initialize(CENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 input(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation)
@@ -58,7 +58,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
     fun `On relationship attestation amendment, only one relationship state must be referenced`() {
         services.ledger {
             transaction {
-                val (relationship, attestation) = initialize(this@ledger, CENTRALIZED_RELATIONSHIP)
+                val (relationship, attestation) = initialize(CENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 input(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation)
                 reference(RelationshipContract.ID, relationship.state.data)
@@ -73,7 +73,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
     fun `On relationship attestation amendment, the attestation pointer must point to the referenced relationship state`() {
         services.ledger {
             transaction {
-                val (relationship, attestation) = initialize(this@ledger, CENTRALIZED_RELATIONSHIP)
+                val (relationship, attestation) = initialize(CENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 val oldPointer = attestation.pointer
                 val newPointer = AttestationPointer(UniqueIdentifier(), oldPointer.stateRef, oldPointer.type)
                 input(RelationshipAttestationContract.ID, attestation)
@@ -89,7 +89,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
     fun `On relationship attestation amendment, all relationship participants must be included`() {
         services.ledger {
             transaction {
-                val (relationship, attestation) = initialize(this@ledger, CENTRALIZED_RELATIONSHIP)
+                val (relationship, attestation) = initialize(CENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 input(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation.copy(attestees = setOf(IDENTITY_B.party)))
                 reference(relationship.ref)
@@ -103,7 +103,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
     fun `On relationship attestation amendment, the attestation and relationship network hash must be equal`() {
         services.ledger {
             transaction {
-                val (relationship, attestation) = initialize(this@ledger, CENTRALIZED_RELATIONSHIP)
+                val (relationship, attestation) = initialize(CENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 input(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation.copy(network = INVALID_NETWORK))
                 reference(relationship.ref)
@@ -117,7 +117,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
     fun `On relationship attestation amendment, all participants must sign the transaction (IDENTITY_A must sign)`() {
         services.ledger {
             transaction {
-                val (relationship, attestation) = initialize(this@ledger, CENTRALIZED_RELATIONSHIP)
+                val (relationship, attestation) = initialize(CENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 input(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation)
                 reference(relationship.ref)
@@ -131,7 +131,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
     fun `On relationship attestation amendment, all participants must sign the transaction (IDENTITY_B must sign)`() {
         services.ledger {
             transaction {
-                val (relationship, attestation) = initialize(this@ledger, CENTRALIZED_RELATIONSHIP)
+                val (relationship, attestation) = initialize(CENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 input(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation)
                 reference(relationship.ref)
@@ -145,7 +145,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
     fun `On relationship attestation amendment, all participants must sign the transaction (IDENTITY_C must sign)`() {
         services.ledger {
             transaction {
-                val (relationship, attestation) = initialize(this@ledger, CENTRALIZED_RELATIONSHIP)
+                val (relationship, attestation) = initialize(CENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 input(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation)
                 reference(relationship.ref)
@@ -159,7 +159,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
     fun `On relationship attestation amendment, all participants must sign the transaction (OPERATOR_A must sign)`() {
         services.ledger {
             transaction {
-                val (relationship, attestation) = initialize(this@ledger, CENTRALIZED_RELATIONSHIP)
+                val (relationship, attestation) = initialize(CENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 input(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation)
                 reference(relationship.ref)

@@ -1,9 +1,6 @@
 package io.cordacity.koncerto.contract.membership.decentralized
 
-import io.cordacity.koncerto.contract.ContractTest
-import io.cordacity.koncerto.contract.DECENTRALIZED_MEMBERSHIP_A
-import io.cordacity.koncerto.contract.IDENTITY_A
-import io.cordacity.koncerto.contract.IDENTITY_B
+import io.cordacity.koncerto.contract.*
 import io.cordacity.koncerto.contract.membership.MembershipContract
 import net.corda.testing.node.ledger
 import org.junit.jupiter.api.DisplayName
@@ -44,6 +41,17 @@ class MembershipContractIssuanceTests : ContractTest() {
                 output(MembershipContract.ID, DECENTRALIZED_MEMBERSHIP_A)
                 command(keysOf(IDENTITY_A), MembershipContract.Issue)
                 failsWith(MembershipContract.Issue.CONTRACT_RULE_OUTPUTS)
+            }
+        }
+    }
+
+    @Test
+    fun `On membership issuance, the previous state reference must be null`() {
+        services.ledger {
+            transaction {
+                output(MembershipContract.ID, DECENTRALIZED_MEMBERSHIP_A.copy(previousStateRef = INVALID_STATEREF))
+                command(keysOf(IDENTITY_A), MembershipContract.Issue)
+                failsWith(MembershipContract.Issue.CONTRACT_RULE_PREVIOUS_REF)
             }
         }
     }

@@ -65,11 +65,7 @@ class RevocationLockPointer<T : LinearState>(
      * @return Returns a [QueryCriteria] representing the state resolution query.
      */
     override fun toQueryCriteria(): QueryCriteria {
-        return LinearStateQueryCriteria(
-            contractStateTypes = setOf(type),
-            linearId = listOf(linearId),
-            status = Vault.StateStatus.UNCONSUMED
-        )
+        return LinearStateQueryCriteria(null, listOf(linearId), Vault.StateStatus.UNCONSUMED, setOf(type))
     }
 
     /**

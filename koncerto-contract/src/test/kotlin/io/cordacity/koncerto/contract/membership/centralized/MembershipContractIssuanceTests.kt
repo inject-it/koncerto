@@ -57,6 +57,17 @@ class MembershipContractIssuanceTests : ContractTest() {
     }
 
     @Test
+    fun `On membership issuance, the previous state reference must be null`() {
+        services.ledger {
+            transaction {
+                output(MembershipContract.ID, CENTRALIZED_MEMBERSHIP_A.copy(previousStateRef = INVALID_STATEREF))
+                command(keysOf(OPERATOR_A), MembershipContract.Issue)
+                failsWith(MembershipContract.Issue.CONTRACT_RULE_PREVIOUS_REF)
+            }
+        }
+    }
+
+    @Test
     fun `On membership issuance, only the network member must sign the transaction`() {
         services.ledger {
             transaction {

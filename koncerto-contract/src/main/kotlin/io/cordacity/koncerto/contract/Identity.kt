@@ -1,6 +1,6 @@
 package io.cordacity.koncerto.contract
 
-import net.corda.core.identity.AbstractParty
+import net.corda.core.identity.Party
 import net.corda.core.serialization.CordaSerializable
 import java.util.*
 
@@ -11,7 +11,7 @@ import java.util.*
  */
 @CordaSerializable
 abstract class Identity {
-    abstract val networkIdentity: AbstractParty
+    abstract val networkIdentity: Party
 
     /**
      * Compares this object for equality with the specified object.
@@ -35,5 +35,5 @@ abstract class Identity {
      * Gets a string representation of this object instance.
      * @return Returns a string representation of this object instance.
      */
-    override fun toString() = "Identity: network identity = $networkIdentity"
+    override fun toString() = "Identity: ${networkIdentity.name}"
 }

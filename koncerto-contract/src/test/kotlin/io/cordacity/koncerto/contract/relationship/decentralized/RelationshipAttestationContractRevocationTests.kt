@@ -16,7 +16,7 @@ class RelationshipAttestationContractRevocationTests : ContractTest() {
     fun `On relationship attestation amendment, the transaction must include the Revoke command`() {
         services.ledger {
             transaction {
-                val (_, attestation) = initialize(this@ledger, DECENTRALIZED_RELATIONSHIP)
+                val (_, attestation) = initialize(DECENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 input(RelationshipAttestationContract.ID, attestation)
                 fails()
                 command(keysOf(IDENTITY_A), RelationshipAttestationContract.Revoke)
@@ -29,7 +29,7 @@ class RelationshipAttestationContractRevocationTests : ContractTest() {
     fun `On relationship attestation revocation, only one state must be consumed`() {
         services.ledger {
             transaction {
-                val (_, attestation) = initialize(this@ledger, DECENTRALIZED_RELATIONSHIP)
+                val (_, attestation) = initialize(DECENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 output(RelationshipAttestationContract.ID, attestation)
                 command(keysOf(IDENTITY_A), RelationshipAttestationContract.Revoke)
                 failsWith(RelationshipAttestationContract.Revoke.CONTRACT_RULE_INPUTS)
@@ -41,7 +41,7 @@ class RelationshipAttestationContractRevocationTests : ContractTest() {
     fun `On relationship attestation revocation, zero states must be created`() {
         services.ledger {
             transaction {
-                val (_, attestation) = initialize(this@ledger, DECENTRALIZED_RELATIONSHIP)
+                val (_, attestation) = initialize(DECENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 input(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation)
                 command(keysOf(IDENTITY_A), RelationshipAttestationContract.Revoke)
@@ -54,7 +54,7 @@ class RelationshipAttestationContractRevocationTests : ContractTest() {
     fun `On relationship attestation revocation, only the attestor must sign the transaction`() {
         services.ledger {
             transaction {
-                val (_, attestation) = initialize(this@ledger, DECENTRALIZED_RELATIONSHIP)
+                val (_, attestation) = initialize(DECENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 input(RelationshipAttestationContract.ID, attestation)
                 command(keysOf(IDENTITY_B), RelationshipAttestationContract.Revoke)
                 failsWith(RelationshipAttestationContract.Revoke.CONTRACT_RULE_SIGNERS)

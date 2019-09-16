@@ -1,6 +1,5 @@
 package io.cordacity.koncerto.contract
 
-import net.corda.core.crypto.SecureHash
 import net.corda.core.serialization.CordaSerializable
 import java.util.*
 
@@ -9,7 +8,6 @@ import java.util.*
  *
  * @property name The name of the role.
  * @property normalizedName The normalize name of the role.
- * @property hash A SHA-256 hashed representation of the role.
  */
 @CordaSerializable
 class Role(val name: String) {
@@ -22,9 +20,8 @@ class Role(val name: String) {
         val NETWORK_OPERATOR = Role("Network Operator")
     }
 
-    val normalizedName: String get() = name.toLowerCase()
-
-    val hash: SecureHash get() = SecureHash.sha256(normalizedName)
+    val normalizedName: String
+        get() = name.toLowerCase()
 
     /**
      * Compares this object for equality with the specified object.

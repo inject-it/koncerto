@@ -65,11 +65,7 @@ class AttestationPointer<T : LinearState>(
      * @return Returns a [QueryCriteria] representing the state resolution query.
      */
     override fun toQueryCriteria(): QueryCriteria {
-        return VaultQueryCriteria(
-            contractStateTypes = setOf(type),
-            stateRefs = listOf(stateRef),
-            status = Vault.StateStatus.ALL
-        )
+        return VaultQueryCriteria(Vault.StateStatus.ALL, setOf(type), listOf(stateRef))
     }
 
     /**

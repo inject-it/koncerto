@@ -13,8 +13,9 @@ class RelationshipContractAmendmentTests : ContractTest() {
     fun `On relationship amendment, the transaction must include the Amend command`() {
         services.ledger {
             transaction {
-                input(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP)
-                output(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP)
+                val (input, output) = initialize(CENTRALIZED_RELATIONSHIP)
+                input(input.ref)
+                output(RelationshipContract.ID, output)
                 fails()
                 command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A), RelationshipContract.Amend)
                 verifies()
@@ -26,9 +27,10 @@ class RelationshipContractAmendmentTests : ContractTest() {
     fun `On relationship amendment, only one state must be consumed`() {
         services.ledger {
             transaction {
-                input(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP)
-                input(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP)
-                output(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP)
+                val (input, output) = initialize(CENTRALIZED_RELATIONSHIP)
+                input(input.ref)
+                input(createDummyOutput().ref)
+                output(RelationshipContract.ID, output)
                 command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A), RelationshipContract.Amend)
                 failsWith(RelationshipContract.Amend.CONTRACT_RULE_INPUTS)
             }
@@ -39,9 +41,10 @@ class RelationshipContractAmendmentTests : ContractTest() {
     fun `On relationship amendment, only one state must be created`() {
         services.ledger {
             transaction {
-                input(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP)
-                output(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP)
-                output(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP)
+                val (input, output) = initialize(CENTRALIZED_RELATIONSHIP)
+                input(input.ref)
+                output(RelationshipContract.ID, output)
+                output(RelationshipContract.ID, output)
                 command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A), RelationshipContract.Amend)
                 failsWith(RelationshipContract.Amend.CONTRACT_RULE_OUTPUTS)
             }
@@ -52,10 +55,24 @@ class RelationshipContractAmendmentTests : ContractTest() {
     fun `On relationship amendment, the network hash must not change`() {
         services.ledger {
             transaction {
-                input(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP)
-                output(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP.copy(network = INVALID_NETWORK))
+                val (input, output) = initialize(CENTRALIZED_RELATIONSHIP)
+                input(input.ref)
+                output(RelationshipContract.ID, output.copy(network = INVALID_NETWORK))
                 command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A), RelationshipContract.Amend)
                 failsWith(RelationshipContract.Amend.CONTRACT_RULE_NETWORK_HASH)
+            }
+        }
+    }
+
+    @Test
+    fun `On relationship amendment, the previous state reference must be equal to the input state reference`() {
+        services.ledger {
+            transaction {
+                val (input, output) = initialize(CENTRALIZED_RELATIONSHIP)
+                input(input.ref)
+                output(RelationshipContract.ID, output.copy(previousStateRef = INVALID_STATEREF))
+                command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A), RelationshipContract.Amend)
+                failsWith(RelationshipContract.Amend.CONTRACT_RULE_PREVIOUS_REF)
             }
         }
     }
@@ -64,8 +81,9 @@ class RelationshipContractAmendmentTests : ContractTest() {
     fun `On relationship amendment, all participants must sign the transaction (IDENTITY_A must sign)`() {
         services.ledger {
             transaction {
-                input(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP)
-                output(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP)
+                val (input, output) = initialize(CENTRALIZED_RELATIONSHIP)
+                input(input.ref)
+                output(RelationshipContract.ID, output)
                 command(keysOf(IDENTITY_B, IDENTITY_C, OPERATOR_A), RelationshipContract.Amend)
                 failsWith(RelationshipContract.Amend.CONTRACT_RULE_SIGNERS)
             }
@@ -76,8 +94,9 @@ class RelationshipContractAmendmentTests : ContractTest() {
     fun `On relationship amendment, all participants must sign the transaction (IDENTITY_B must sign)`() {
         services.ledger {
             transaction {
-                input(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP)
-                output(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP)
+                val (input, output) = initialize(CENTRALIZED_RELATIONSHIP)
+                input(input.ref)
+                output(RelationshipContract.ID, output)
                 command(keysOf(IDENTITY_A, IDENTITY_C, OPERATOR_A), RelationshipContract.Amend)
                 failsWith(RelationshipContract.Amend.CONTRACT_RULE_SIGNERS)
             }
@@ -88,8 +107,9 @@ class RelationshipContractAmendmentTests : ContractTest() {
     fun `On relationship amendment, all participants must sign the transaction (IDENTITY_C must sign)`() {
         services.ledger {
             transaction {
-                input(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP)
-                output(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP)
+                val (input, output) = initialize(CENTRALIZED_RELATIONSHIP)
+                input(input.ref)
+                output(RelationshipContract.ID, output)
                 command(keysOf(IDENTITY_A, IDENTITY_B, OPERATOR_A), RelationshipContract.Amend)
                 failsWith(RelationshipContract.Amend.CONTRACT_RULE_SIGNERS)
             }
@@ -100,8 +120,9 @@ class RelationshipContractAmendmentTests : ContractTest() {
     fun `On relationship amendment, all participants must sign the transaction (OPERATOR_A must sign)`() {
         services.ledger {
             transaction {
-                input(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP)
-                output(RelationshipContract.ID, CENTRALIZED_RELATIONSHIP)
+                val (input, output) = initialize(CENTRALIZED_RELATIONSHIP)
+                input(input.ref)
+                output(RelationshipContract.ID, output)
                 command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C), RelationshipContract.Amend)
                 failsWith(RelationshipContract.Amend.CONTRACT_RULE_SIGNERS)
             }

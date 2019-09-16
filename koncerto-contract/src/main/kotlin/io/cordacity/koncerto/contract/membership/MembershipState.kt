@@ -4,7 +4,7 @@ import io.cordacity.koncerto.contract.*
 import io.cordacity.koncerto.contract.membership.MembershipSchema.MembershipEntity
 import io.cordacity.koncerto.contract.membership.MembershipSchema.MembershipSchemaV1
 import net.corda.core.contracts.BelongsToContract
-import net.corda.core.contracts.LinearState
+import net.corda.core.contracts.StateRef
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.crypto.SecureHash
 import net.corda.core.identity.AbstractParty
@@ -31,10 +31,11 @@ import net.corda.core.schemas.PersistentState
  * @property roles The roles that are possessed by the network member.
  * @property claims The claims that are possessed by the network member.
  * @property attachments The attachments that are possessed by the network member.
- * @property externalId The external identity of the network member, or null if no external identity is required.
+ * @property previousStateRef The state ref to the previous version of the state, or null if this is this first version.
  * @property linearId The unique identifier of the membership state.
  * @property participants The network identity of the network member, and optionally the network operator.
  * @property isNetworkOperator Determines whether the network member is the network operator.
+ * @property hash A SHA-256 hash that uniquely identifies this version of the state.
  */
 @BelongsToContract(MembershipContract::class)
 data class MembershipState<T : Identity>(
@@ -43,16 +44,18 @@ data class MembershipState<T : Identity>(
     val roles: Set<Role> = emptySet(),
     val claims: Set<Claim> = emptySet(),
     val attachments: Set<SecureHash> = emptySet(),
-    val externalId: String? = null
-) : NetworkState() {
-
-    override val linearId: UniqueIdentifier
-        get() = HashUtils.createMembershipIdentifier(network, identity.networkIdentity, externalId)
+    val previousStateRef: StateRef? = null,
+    override val linearId: UniqueIdentifier = UniqueIdentifier()
+) : NetworkState(), Hashable {
 
     override val participants: List<AbstractParty>
         get() = listOfNotNull(identity.networkIdentity, network.operator)
 
-    val isNetworkOperator: Boolean get() = identity.networkIdentity == network.operator
+    val isNetworkOperator: Boolean
+        get() = identity.networkIdentity == network.operator
+
+    override val hash: SecureHash
+        get() = SecureHash.sha256("${network.hash}${identity.networkIdentity}$previousStateRef")
 
     /**
      * Maps this state to a persistent state.
@@ -60,13 +63,14 @@ data class MembershipState<T : Identity>(
     override fun generateMappedObject(schema: MappedSchema): PersistentState = when (schema) {
         is MembershipSchemaV1 -> MembershipEntity(
             linearId = linearId.id,
-            externalId = externalId,
+            externalId = linearId.externalId,
             networkName = network.name,
             normalizedNetworkName = network.normalizedName,
             networkOperator = network.operator,
             networkIdentity = identity.networkIdentity,
             networkHash = network.hash.toString(),
-            isNetworkOperator = isNetworkOperator
+            isNetworkOperator = isNetworkOperator,
+            hash = hash.toString()
         )
         else -> throw IllegalArgumentException("Unrecognised schema: $schema.")
     }
