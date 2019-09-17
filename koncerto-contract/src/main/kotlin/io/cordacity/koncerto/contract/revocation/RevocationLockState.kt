@@ -36,9 +36,9 @@ data class RevocationLockState<T : LinearState>(
          * @property status Specifies whether the revocation lock is locked or unlocked.
          * @return Returns a revocation lock state.
          */
-        fun create(
+        inline fun <reified T : LinearState> create(
             owner: AbstractParty,
-            state: LinearState,
+            state: T,
             status: RevocationLockStatus = RevocationLockStatus.LOCKED
         ) = RevocationLockState(
             owner = owner,

@@ -1,6 +1,7 @@
 package io.cordacity.koncerto.workflow.membership
 
 import io.cordacity.koncerto.contract.Network
+import io.cordacity.koncerto.contract.membership.MembershipAttestationSchema
 import io.cordacity.koncerto.contract.membership.MembershipAttestationSchema.MembershipAttestationEntity
 import io.cordacity.koncerto.contract.membership.MembershipAttestationState
 import io.cordacity.koncerto.contract.membership.MembershipState
@@ -60,17 +61,9 @@ class FindLocalMembershipAttestationFlow(
         currentStep(QUERYING)
         return builder {
             val criteria = if (stateRef == null) {
-                VaultQueryCriteria(status)
-                    .and(VaultCustomQueryCriteria(MembershipAttestationEntity::attestee.equal(attestee)))
-                    .and(VaultCustomQueryCriteria(MembershipAttestationEntity::networkHash.equal(network.hash)))
+                MembershipAttestationSchema.getQueryCriteria(network, attestee, status)
             } else {
-                val hash = stateRef.txhash.toString()
-                val index = stateRef.index
-                VaultQueryCriteria(status)
-                    .and(VaultCustomQueryCriteria(MembershipAttestationEntity::attestee.equal(attestee)))
-                    .and(VaultCustomQueryCriteria(MembershipAttestationEntity::networkHash.equal(network.hash)))
-                    .and(VaultCustomQueryCriteria(MembershipAttestationEntity::membershipStateRefHash.equal(hash)))
-                    .and(VaultCustomQueryCriteria(MembershipAttestationEntity::membershipStateRefIndex.equal(index)))
+                MembershipAttestationSchema.getQueryCriteria(network, attestee, stateRef, status)
             }
 
             serviceHub.vaultService.queryBy(MembershipAttestationState::class.java, criteria)

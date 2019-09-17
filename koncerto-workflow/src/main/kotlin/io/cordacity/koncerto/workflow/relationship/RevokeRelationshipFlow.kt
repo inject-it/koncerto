@@ -30,7 +30,7 @@ class RevokeRelationshipFlow(
     override fun call(): SignedTransaction {
         currentStep(INITIALIZING)
         checkSessionsForAllCounterparties(relationship.state.data, sessions)
-        sessions.forEach { it.send(Pair(FlowAction.ISSUING, false)) }
+        sessions.forEach { it.send(Pair(FlowAction.REVOKING, false)) }
 
         currentStep(GENERATING)
         val transaction = with(TransactionBuilder(notary)) {

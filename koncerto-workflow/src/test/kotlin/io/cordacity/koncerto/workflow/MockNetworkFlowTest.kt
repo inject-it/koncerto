@@ -1,5 +1,6 @@
 package io.cordacity.koncerto.workflow
 
+import io.cordacity.koncerto.contract.AttestationStatus
 import io.cordacity.koncerto.contract.Network
 import io.cordacity.koncerto.contract.Role
 import io.cordacity.koncerto.contract.membership.MembershipAttestationState
@@ -17,6 +18,7 @@ import net.corda.core.contracts.LinearState
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
+import net.corda.core.transactions.SignedTransaction
 import net.corda.core.utilities.getOrThrow
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.singleIdentity
@@ -117,17 +119,22 @@ abstract class MockNetworkFlowTest {
         network: Network,
         observers: Set<Party> = emptySet(),
         roles: Set<Role> = emptySet()
-    ) = runNetwork {
+    ): Pair<SignedTransaction, MembershipState<DummyIdentity>> {
         val membership = MembershipState(network, DummyIdentity(party), roles)
-        startFlow(IssueMembershipFlow.Initiator(membership, observers = observers))
+        val transaction = runNetwork {
+            startFlow(IssueMembershipFlow.Initiator(membership, observers = observers))
+        }
+        return transaction to membership
     }
 
     fun StartedMockNode.amendMembership(
         oldMembership: StateAndRef<MembershipState<DummyIdentity>>,
         newMembership: MembershipState<DummyIdentity>,
         observers: Set<Party> = emptySet()
-    ) = runNetwork {
-        startFlow(AmendMembershipFlow.Initiator(oldMembership, newMembership, observers = observers))
+    ): Pair<SignedTransaction, MembershipState<DummyIdentity>> {
+        return runNetwork {
+            startFlow(AmendMembershipFlow.Initiator(oldMembership, newMembership, observers = observers))
+        } to newMembership
     }
 
     fun StartedMockNode.revokeMembership(
@@ -138,16 +145,23 @@ abstract class MockNetworkFlowTest {
     }
 
     fun StartedMockNode.issueMembershipAttestation(
-        attestation: MembershipAttestationState
-    ) = runNetwork {
-        startFlow(IssueMembershipAttestationFlow.Initiator(attestation))
+        membership: StateAndRef<MembershipState<DummyIdentity>>,
+        status: AttestationStatus = AttestationStatus.REJECTED,
+        metadata: Map<String, String> = emptyMap()
+    ): Pair<SignedTransaction, MembershipAttestationState> {
+        val attestation = MembershipAttestationState.create(party, membership, status, metadata)
+        return runNetwork {
+            startFlow(IssueMembershipAttestationFlow.Initiator(attestation))
+        } to attestation
     }
 
     fun StartedMockNode.amendMembershipAttestation(
         oldAttestation: StateAndRef<MembershipAttestationState>,
         newAttestation: MembershipAttestationState
-    ) = runNetwork {
-        startFlow(AmendMembershipAttestationFlow.Initiator(oldAttestation, newAttestation))
+    ): Pair<SignedTransaction, MembershipAttestationState> {
+        return runNetwork {
+            startFlow(AmendMembershipAttestationFlow.Initiator(oldAttestation, newAttestation))
+        } to newAttestation
     }
 
     fun StartedMockNode.revokeMembershipAttestation(
@@ -159,16 +173,28 @@ abstract class MockNetworkFlowTest {
     fun StartedMockNode.issueRelationship(
         relationship: RelationshipState<DummyConfig>,
         checkMembership: Boolean = false
-    ) = runNetwork {
-        startFlow(IssueRelationshipFlow.Initiator(relationship, checkMembership = checkMembership))
+    ): Triple<SignedTransaction, RelationshipState<DummyConfig>, List<StateAndRef<RevocationLockState<*>>>> {
+        val transaction = runNetwork {
+            startFlow(IssueRelationshipFlow.Initiator(relationship, checkMembership = checkMembership))
+        }
+        val revocationLocks = transaction.tx.outRefsOfType<RevocationLockState<*>>()
+        return Triple(transaction, relationship, revocationLocks)
     }
 
     fun StartedMockNode.amendRelationship(
         oldRelationship: StateAndRef<RelationshipState<DummyConfig>>,
         newRelationship: RelationshipState<DummyConfig>,
         checkMembership: Boolean = false
-    ) = runNetwork {
-        startFlow(AmendRelationshipFlow.Initiator(oldRelationship, newRelationship, checkMembership = checkMembership))
+    ): Pair<SignedTransaction, RelationshipState<DummyConfig>> {
+        return runNetwork {
+            startFlow(
+                AmendRelationshipFlow.Initiator(
+                    oldRelationship,
+                    newRelationship,
+                    checkMembership = checkMembership
+                )
+            )
+        } to newRelationship
     }
 
     fun StartedMockNode.revokeRelationship(

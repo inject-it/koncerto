@@ -1,20 +1,17 @@
 package io.cordacity.koncerto.workflow.membership
 
 import io.cordacity.koncerto.contract.Network
-import io.cordacity.koncerto.contract.membership.MembershipSchema.MembershipEntity
+import io.cordacity.koncerto.contract.membership.MembershipSchema
 import io.cordacity.koncerto.contract.membership.MembershipState
 import io.cordacity.koncerto.workflow.QUERYING
 import io.cordacity.koncerto.workflow.currentStep
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.contracts.StateRef
-import net.corda.core.crypto.SecureHash
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.StartableByRPC
 import net.corda.core.flows.StartableByService
 import net.corda.core.identity.AbstractParty
 import net.corda.core.node.services.Vault
-import net.corda.core.node.services.vault.QueryCriteria.VaultCustomQueryCriteria
-import net.corda.core.node.services.vault.QueryCriteria.VaultQueryCriteria
 import net.corda.core.node.services.vault.builder
 import net.corda.core.utilities.ProgressTracker
 
@@ -50,13 +47,9 @@ class FindLocalMembershipFlow private constructor(
         currentStep(QUERYING)
         return builder {
             val criteria = if (previousStateRef == null) {
-                VaultQueryCriteria(status)
-                    .and(VaultCustomQueryCriteria(MembershipEntity::networkIdentity.equal(networkIdentity)))
-                    .and(VaultCustomQueryCriteria(MembershipEntity::networkHash.equal(network.hash.toString())))
+                MembershipSchema.getQueryCriteria(network, networkIdentity, status)
             } else {
-                val hash = SecureHash.sha256("${network.hash}$networkIdentity$previousStateRef")
-                VaultQueryCriteria(status)
-                    .and(VaultCustomQueryCriteria(MembershipEntity::hash.equal(hash)))
+                MembershipSchema.getQueryCriteria(network, networkIdentity, previousStateRef, status)
             }
 
             serviceHub.vaultService.queryBy(MembershipState::class.java, criteria)

@@ -32,7 +32,7 @@ class AmendRelationshipFlow(
     override fun call(): SignedTransaction {
         currentStep(INITIALIZING)
         checkSessionsForAllCounterparties(newRelationship, sessions)
-        sessions.forEach { it.send(Pair(FlowAction.ISSUING, checkMembership)) }
+        sessions.forEach { it.send(Pair(FlowAction.AMENDING, checkMembership)) }
 
         if (checkMembership) {
             checkMembershipsAndAttestations(newRelationship.participants - ourIdentity, newRelationship.network)
