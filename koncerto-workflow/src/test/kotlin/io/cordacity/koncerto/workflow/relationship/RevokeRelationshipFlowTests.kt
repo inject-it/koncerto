@@ -112,7 +112,7 @@ class RevokeRelationshipFlowTests : MockNetworkFlowTest() {
     }
 
     @Test
-    fun `AmendRelationshipFlow should record a transaction for all participants (centralized)`() {
+    fun `RevokeRelationshipFlow should record a transaction for all participants (centralized)`() {
 
         // Act
         val (issuanceTransaction, _, revocationLocks) = alice.issueRelationship(CENTRALIZED_RELATIONSHIP)
@@ -140,7 +140,7 @@ class RevokeRelationshipFlowTests : MockNetworkFlowTest() {
     }
 
     @Test
-    fun `AmendRelationshipFlow should record a transaction for all participants (centralized, locks have been deleted)`() {
+    fun `RevokeRelationshipFlow should record a transaction for all participants (centralized, locks have been deleted)`() {
 
         // Act
         val (issuanceTransaction, _, revocationLocks) = alice.issueRelationship(CENTRALIZED_RELATIONSHIP)
@@ -224,7 +224,7 @@ class RevokeRelationshipFlowTests : MockNetworkFlowTest() {
     }
 
     @Test
-    fun `AmendRelationshipFlow should fail if there are locked revocation locks (centralized)`() {
+    fun `RevokeRelationshipFlow should fail if there are locked revocation locks (centralized)`() {
 
         // Act
         val (issuanceTransaction, _, revocationLocks) = alice.issueRelationship(CENTRALIZED_RELATIONSHIP)
@@ -244,7 +244,7 @@ class RevokeRelationshipFlowTests : MockNetworkFlowTest() {
     }
 
     @Test
-    fun `AmendRelationshipFlow should fail if there are locked revocation locks (decentralized)`() {
+    fun `RevokeRelationshipFlow should fail if there are locked revocation locks (decentralized)`() {
 
         // Act
         val (issuanceTransaction, _, revocationLocks) = alice.issueRelationship(DECENTRALIZED_RELATIONSHIP)

@@ -44,7 +44,6 @@ class RevokeRelationshipAttestationFlow(
 
         currentStep(FINALIZING)
         return subFlow(FinalityFlow(signedTransaction, sessions, FINALIZING.childProgressTracker()))
-
     }
 
     @StartableByRPC

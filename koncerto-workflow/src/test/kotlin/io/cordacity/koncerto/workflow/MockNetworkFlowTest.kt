@@ -5,6 +5,7 @@ import io.cordacity.koncerto.contract.Network
 import io.cordacity.koncerto.contract.Role
 import io.cordacity.koncerto.contract.membership.MembershipAttestationState
 import io.cordacity.koncerto.contract.membership.MembershipState
+import io.cordacity.koncerto.contract.relationship.RelationshipAttestationState
 import io.cordacity.koncerto.contract.relationship.RelationshipState
 import io.cordacity.koncerto.contract.revocation.RevocationLockState
 import io.cordacity.koncerto.contract.revocation.RevocationLockStatus
@@ -207,6 +208,32 @@ abstract class MockNetworkFlowTest {
         state: LinearState
     ) = runNetwork {
         startFlow(CreateRevocationLockFlow(state))
+    }
+
+    fun StartedMockNode.issueRelationshipAttestation(
+        relationship: StateAndRef<RelationshipState<DummyConfig>>,
+        status: AttestationStatus = AttestationStatus.REJECTED,
+        metadata: Map<String, String> = emptyMap()
+    ): Pair<SignedTransaction, RelationshipAttestationState> {
+        val attestation = RelationshipAttestationState.create(party, relationship, status, metadata)
+        return runNetwork {
+            startFlow(IssueRelationshipAttestationFlow.Initiator(attestation))
+        } to attestation
+    }
+
+    fun StartedMockNode.amendRelationshipAttestation(
+        oldAttestation: StateAndRef<RelationshipAttestationState>,
+        newAttestation: RelationshipAttestationState
+    ): Pair<SignedTransaction, RelationshipAttestationState> {
+        return runNetwork {
+            startFlow(AmendRelationshipAttestationFlow.Initiator(oldAttestation, newAttestation))
+        } to newAttestation
+    }
+
+    fun StartedMockNode.revokeRelationshipAttestation(
+        attestation: StateAndRef<RelationshipAttestationState>
+    ) = runNetwork {
+        startFlow(RevokeRelationshipAttestationFlow.Initiator(attestation))
     }
 
     fun StartedMockNode.updateRevocationLock(

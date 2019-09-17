@@ -1,6 +1,7 @@
 package io.cordacity.koncerto.workflow.relationship
 
 import co.paralleluniverse.fibers.Suspendable
+import io.cordacity.koncerto.contract.relationship.RelationshipAttestationState
 import io.cordacity.koncerto.contract.relationship.RelationshipState
 import io.cordacity.koncerto.workflow.COUNTERSIGNING
 import io.cordacity.koncerto.workflow.FINALIZING
@@ -24,12 +25,14 @@ class ObserveRelationshipAttestationFlow(
         currentStep(COUNTERSIGNING)
         val transaction = subFlow(object : SignTransactionFlow(session) {
             override fun checkTransaction(stx: SignedTransaction) {
-                val relationshipState = serviceHub
-                    .toStateAndRef<RelationshipState<*>>(stx.tx.references.single()).state.data
-
-                if (ourIdentity !in relationshipState.participants) {
-                    throw FlowException("Relationship is not relevant to counter-party: $ourIdentity.")
-                }
+//                if (stx.tx.outputsOfType<RelationshipAttestationState>().isNotEmpty()) {
+//                    val relationshipState = serviceHub
+//                        .toStateAndRef<RelationshipState<*>>(stx.tx.references.single()).state.data
+//
+//                    if (ourIdentity !in relationshipState.participants) {
+//                        throw FlowException("Relationship is not relevant to counter-party: $ourIdentity.")
+//                    }
+//                }
             }
         })
 
