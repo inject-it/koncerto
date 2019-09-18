@@ -17,7 +17,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
                 output(RelationshipAttestationContract.ID, attestation)
                 reference(relationship.ref)
                 fails()
-                command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A), RelationshipAttestationContract.Amend)
+                command(keysOf(IDENTITY_A), RelationshipAttestationContract.Amend)
                 verifies()
             }
         }
@@ -32,7 +32,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
                 output(RelationshipAttestationContract.ID, attestation)
                 reference(relationship.ref)
                 fails()
-                command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C), RelationshipAttestationContract.Amend)
+                command(keysOf(IDENTITY_A), RelationshipAttestationContract.Amend)
                 verifies()
             }
         }
@@ -45,7 +45,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
                 val (relationship, attestation) = initialize(CENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 output(RelationshipAttestationContract.ID, attestation)
                 reference(relationship.ref)
-                command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A), RelationshipAttestationContract.Amend)
+                command(keysOf(IDENTITY_A), RelationshipAttestationContract.Amend)
                 failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_INPUTS)
             }
         }
@@ -58,7 +58,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
                 val (relationship, attestation) = initialize(DECENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 output(RelationshipAttestationContract.ID, attestation)
                 reference(relationship.ref)
-                command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C), RelationshipAttestationContract.Amend)
+                command(keysOf(IDENTITY_A), RelationshipAttestationContract.Amend)
                 failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_INPUTS)
             }
         }
@@ -73,7 +73,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
                 output(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation)
                 reference(relationship.ref)
-                command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A), RelationshipAttestationContract.Amend)
+                command(keysOf(IDENTITY_A), RelationshipAttestationContract.Amend)
                 failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_OUTPUTS)
             }
         }
@@ -88,7 +88,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
                 output(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation)
                 reference(relationship.ref)
-                command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C), RelationshipAttestationContract.Amend)
+                command(keysOf(IDENTITY_A), RelationshipAttestationContract.Amend)
                 failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_OUTPUTS)
             }
         }
@@ -103,7 +103,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
                 output(RelationshipAttestationContract.ID, attestation)
                 reference(RelationshipContract.ID, relationship.state.data)
                 reference(relationship.ref)
-                command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A), RelationshipAttestationContract.Amend)
+                command(keysOf(IDENTITY_A), RelationshipAttestationContract.Amend)
                 failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_REFERENCES)
             }
         }
@@ -118,7 +118,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
                 output(RelationshipAttestationContract.ID, attestation)
                 reference(RelationshipContract.ID, relationship.state.data)
                 reference(relationship.ref)
-                command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C), RelationshipAttestationContract.Amend)
+                command(keysOf(IDENTITY_A), RelationshipAttestationContract.Amend)
                 failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_REFERENCES)
             }
         }
@@ -134,7 +134,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
                 input(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation.copy(pointer = newPointer))
                 reference(relationship.ref)
-                command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A), RelationshipAttestationContract.Amend)
+                command(keysOf(IDENTITY_A), RelationshipAttestationContract.Amend)
                 failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_POINTER)
             }
         }
@@ -150,7 +150,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
                 input(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation.copy(pointer = newPointer))
                 reference(relationship.ref)
-                command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C), RelationshipAttestationContract.Amend)
+                command(keysOf(IDENTITY_A), RelationshipAttestationContract.Amend)
                 failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_POINTER)
             }
         }
@@ -164,7 +164,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
                 input(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation.copy(attestees = setOf(IDENTITY_B.party)))
                 reference(relationship.ref)
-                command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A), RelationshipAttestationContract.Amend)
+                command(keysOf(IDENTITY_A), RelationshipAttestationContract.Amend)
                 failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_PARTICIPANTS)
             }
         }
@@ -178,7 +178,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
                 input(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation.copy(attestees = setOf(IDENTITY_B.party)))
                 reference(relationship.ref)
-                command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C), RelationshipAttestationContract.Amend)
+                command(keysOf(IDENTITY_A), RelationshipAttestationContract.Amend)
                 failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_PARTICIPANTS)
             }
         }
@@ -192,7 +192,7 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
                 input(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation.copy(network = INVALID_NETWORK))
                 reference(relationship.ref)
-                command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C, OPERATOR_A), RelationshipAttestationContract.Amend)
+                command(keysOf(IDENTITY_A), RelationshipAttestationContract.Amend)
                 failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_NETWORK_HASH)
             }
         }
@@ -206,105 +206,35 @@ class RelationshipAttestationContractAmendmentTests : ContractTest() {
                 input(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation.copy(network = INVALID_NETWORK))
                 reference(relationship.ref)
-                command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C), RelationshipAttestationContract.Amend)
+                command(keysOf(IDENTITY_A), RelationshipAttestationContract.Amend)
                 failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_NETWORK_HASH)
             }
         }
     }
 
     @Test
-    fun `On relationship attestation amendment, all participants must sign the transaction (IDENTITY_A must sign) (centralized)`() {
+    fun `On relationship attestation amendment, only the attestor must sign the transaction (centralized)`() {
         services.ledger {
             transaction {
                 val (relationship, attestation) = initialize(CENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 input(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation)
                 reference(relationship.ref)
-                command(keysOf(IDENTITY_B, IDENTITY_C, OPERATOR_A), RelationshipAttestationContract.Amend)
+                command(keysOf(IDENTITY_B), RelationshipAttestationContract.Amend)
                 failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_SIGNERS)
             }
         }
     }
 
     @Test
-    fun `On relationship attestation amendment, all participants must sign the transaction (IDENTITY_A must sign) (decentralized)`() {
+    fun `On relationship attestation amendment, only the attestor must sign the transaction  (decentralized)`() {
         services.ledger {
             transaction {
                 val (relationship, attestation) = initialize(DECENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
                 input(RelationshipAttestationContract.ID, attestation)
                 output(RelationshipAttestationContract.ID, attestation)
                 reference(relationship.ref)
-                command(keysOf(IDENTITY_B, IDENTITY_C), RelationshipAttestationContract.Amend)
-                failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_SIGNERS)
-            }
-        }
-    }
-
-    @Test
-    fun `On relationship attestation amendment, all participants must sign the transaction (IDENTITY_B must sign) (centralized)`() {
-        services.ledger {
-            transaction {
-                val (relationship, attestation) = initialize(CENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
-                input(RelationshipAttestationContract.ID, attestation)
-                output(RelationshipAttestationContract.ID, attestation)
-                reference(relationship.ref)
-                command(keysOf(IDENTITY_A, IDENTITY_C, OPERATOR_A), RelationshipAttestationContract.Amend)
-                failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_SIGNERS)
-            }
-        }
-    }
-
-    @Test
-    fun `On relationship attestation amendment, all participants must sign the transaction (IDENTITY_B must sign) (decentralized)`() {
-        services.ledger {
-            transaction {
-                val (relationship, attestation) = initialize(DECENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
-                input(RelationshipAttestationContract.ID, attestation)
-                output(RelationshipAttestationContract.ID, attestation)
-                reference(relationship.ref)
-                command(keysOf(IDENTITY_A, IDENTITY_C), RelationshipAttestationContract.Amend)
-                failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_SIGNERS)
-            }
-        }
-    }
-
-    @Test
-    fun `On relationship attestation amendment, all participants must sign the transaction (IDENTITY_C must sign) (centralized)`() {
-        services.ledger {
-            transaction {
-                val (relationship, attestation) = initialize(CENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
-                input(RelationshipAttestationContract.ID, attestation)
-                output(RelationshipAttestationContract.ID, attestation)
-                reference(relationship.ref)
-                command(keysOf(IDENTITY_A, IDENTITY_B, OPERATOR_A), RelationshipAttestationContract.Amend)
-                failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_SIGNERS)
-            }
-        }
-    }
-
-    @Test
-    fun `On relationship attestation amendment, all participants must sign the transaction (IDENTITY_C must sign) (decentralized)`() {
-        services.ledger {
-            transaction {
-                val (relationship, attestation) = initialize(DECENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
-                input(RelationshipAttestationContract.ID, attestation)
-                output(RelationshipAttestationContract.ID, attestation)
-                reference(relationship.ref)
-                command(keysOf(IDENTITY_A, IDENTITY_B), RelationshipAttestationContract.Amend)
-                failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_SIGNERS)
-            }
-        }
-    }
-
-    @Test
-    fun `On relationship attestation amendment, all participants must sign the transaction (OPERATOR_A must sign) (centralized)`() {
-        services.ledger {
-            transaction {
-                val (relationship, attestation) = initialize(CENTRALIZED_RELATIONSHIP, IDENTITY_A.party)
-                input(RelationshipAttestationContract.ID, attestation)
-                output(RelationshipAttestationContract.ID, attestation)
-                reference(relationship.ref)
-                command(keysOf(IDENTITY_A, IDENTITY_B, IDENTITY_C), RelationshipAttestationContract.Amend)
+                command(keysOf(IDENTITY_B), RelationshipAttestationContract.Amend)
                 failsWith(RelationshipAttestationContract.Amend.CONTRACT_RULE_SIGNERS)
             }
         }

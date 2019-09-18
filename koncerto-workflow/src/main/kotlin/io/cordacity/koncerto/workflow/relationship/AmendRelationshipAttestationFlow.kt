@@ -23,7 +23,7 @@ class AmendRelationshipAttestationFlow(
         private const val FLOW_VERSION_1 = 1
 
         @JvmStatic
-        fun tracker() = ProgressTracker(INITIALIZING, GENERATING, VERIFYING, SIGNING, GATHERING, FINALIZING)
+        fun tracker() = ProgressTracker(INITIALIZING, GENERATING, VERIFYING, SIGNING, FINALIZING)
     }
 
     @Suspendable
@@ -36,26 +36,17 @@ class AmendRelationshipAttestationFlow(
             addInputState(oldAttestation)
             addOutputState(newAttestation, RelationshipAttestationContract.ID)
             addReferenceState(newAttestation.pointer.resolve(serviceHub).referenced())
-            addCommand(RelationshipAttestationContract.Amend, keysFor(newAttestation.participants))
+            addCommand(RelationshipAttestationContract.Amend, ourIdentity.owningKey)
         }
 
         currentStep(VERIFYING)
         transaction.verify(serviceHub)
 
         currentStep(SIGNING)
-        val partiallySignedTransaction = serviceHub.signInitialTransaction(transaction, ourIdentity.owningKey)
-
-        currentStep(GATHERING)
-        val fullySignedTransaction = subFlow(
-            CollectSignaturesFlow(
-                partiallySignedTransaction,
-                sessions,
-                GATHERING.childProgressTracker()
-            )
-        )
+        val signedTransaction = serviceHub.signInitialTransaction(transaction, ourIdentity.owningKey)
 
         currentStep(FINALIZING)
-        return subFlow(FinalityFlow(fullySignedTransaction, sessions, FINALIZING.childProgressTracker()))
+        return subFlow(FinalityFlow(signedTransaction, sessions, FINALIZING.childProgressTracker()))
     }
 
     @StartableByRPC

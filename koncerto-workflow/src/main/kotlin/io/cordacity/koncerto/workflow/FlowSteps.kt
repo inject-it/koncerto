@@ -1,5 +1,6 @@
 package io.cordacity.koncerto.workflow
 
+import io.cordacity.koncerto.workflow.common.CheckedReceiveFinalityFlow
 import net.corda.core.flows.CollectSignaturesFlow
 import net.corda.core.flows.FinalityFlow
 import net.corda.core.utilities.ProgressTracker.Step
@@ -22,4 +23,8 @@ internal object GATHERING : Step("Gathering counter-party signatures.") {
 
 internal object FINALIZING : Step("Finalizing signed transaction.") {
     override fun childProgressTracker() = FinalityFlow.tracker()
+}
+
+internal object CHECKED_FINALIZING : Step("Checking and finalizing signed transaction.") {
+    override fun childProgressTracker() = CheckedReceiveFinalityFlow.tracker()
 }

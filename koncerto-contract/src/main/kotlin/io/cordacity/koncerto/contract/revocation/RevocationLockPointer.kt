@@ -1,6 +1,5 @@
 package io.cordacity.koncerto.contract.revocation
 
-import io.cordacity.koncerto.contract.AttestationPointer
 import io.cordacity.koncerto.contract.Resolvable
 import net.corda.core.contracts.LinearState
 import net.corda.core.contracts.StateAndRef
@@ -76,7 +75,7 @@ class RevocationLockPointer<T : LinearState>(
      */
     override fun equals(other: Any?): Boolean {
         return other === this || (other != null
-                && other is AttestationPointer<*>
+                && other is RevocationLockPointer<*>
                 && other.linearId == linearId
                 && other.type == type)
     }

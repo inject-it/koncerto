@@ -42,7 +42,7 @@ class RelationshipAttestationContract : Contract {
             "On relationship attestation issuance, the attestation and relationship network hash must be equal."
 
         internal const val CONTRACT_RULE_SIGNERS =
-            "On relationship attestation issuance, all participants must sign the transaction."
+            "On relationship attestation issuance, only the attestor must sign the transaction."
 
         override fun verify(tx: LedgerTransaction, signers: Set<PublicKey>) = requireThat {
             CONTRACT_RULE_INPUTS using (tx.inputs.isEmpty())
@@ -57,7 +57,7 @@ class RelationshipAttestationContract : Contract {
             CONTRACT_RULE_POINTER using (attestationOutputState.pointer.isPointingTo(referencedRelationshipState))
             CONTRACT_RULE_PARTICIPANTS using (missingParticipants == emptyList<AbstractParty>())
             CONTRACT_RULE_NETWORK_HASH using (attestationOutputState.network.hash == referencedRelationshipState.state.data.network.hash)
-            CONTRACT_RULE_SIGNERS using (attestationOutputState.participants.all { it.owningKey in signers })
+            CONTRACT_RULE_SIGNERS using (attestationOutputState.attestor.owningKey == signers.single())
         }
     }
 
@@ -82,7 +82,7 @@ class RelationshipAttestationContract : Contract {
             "On relationship attestation amendment, the attestation and relationship network hash must be equal."
 
         internal const val CONTRACT_RULE_SIGNERS =
-            "On relationship attestation amendment, all participants must sign the transaction."
+            "On relationship attestation amendment, only the attestor must sign the transaction."
 
         override fun verify(tx: LedgerTransaction, signers: Set<PublicKey>) = requireThat {
             CONTRACT_RULE_INPUTS using (tx.inputs.size == 1)
@@ -97,7 +97,7 @@ class RelationshipAttestationContract : Contract {
             CONTRACT_RULE_POINTER using (attestationOutputState.pointer.isPointingTo(referencedRelationshipState))
             CONTRACT_RULE_PARTICIPANTS using (missingParticipants == emptyList<AbstractParty>())
             CONTRACT_RULE_NETWORK_HASH using (attestationOutputState.network.hash == referencedRelationshipState.state.data.network.hash)
-            CONTRACT_RULE_SIGNERS using (attestationOutputState.participants.all { it.owningKey in signers })
+            CONTRACT_RULE_SIGNERS using (attestationOutputState.attestor.owningKey == signers.single())
         }
     }
 

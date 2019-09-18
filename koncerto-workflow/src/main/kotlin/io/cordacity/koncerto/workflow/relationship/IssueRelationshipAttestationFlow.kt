@@ -22,7 +22,7 @@ class IssueRelationshipAttestationFlow(
         private const val FLOW_VERSION_1 = 1
 
         @JvmStatic
-        fun tracker() = ProgressTracker(INITIALIZING, GENERATING, VERIFYING, SIGNING, GATHERING, FINALIZING)
+        fun tracker() = ProgressTracker(INITIALIZING, GENERATING, VERIFYING, SIGNING, FINALIZING)
     }
 
     @Suspendable
@@ -34,26 +34,17 @@ class IssueRelationshipAttestationFlow(
         val transaction = with(TransactionBuilder(notary)) {
             addOutputState(attestation, RelationshipAttestationContract.ID)
             addReferenceState(attestation.pointer.resolve(serviceHub).referenced())
-            addCommand(RelationshipAttestationContract.Issue, keysFor(attestation.participants))
+            addCommand(RelationshipAttestationContract.Issue, ourIdentity.owningKey)
         }
 
         currentStep(VERIFYING)
         transaction.verify(serviceHub)
 
         currentStep(SIGNING)
-        val partiallySignedTransaction = serviceHub.signInitialTransaction(transaction, ourIdentity.owningKey)
-
-        currentStep(GATHERING)
-        val fullySignedTransaction = subFlow(
-            CollectSignaturesFlow(
-                partiallySignedTransaction,
-                sessions,
-                GATHERING.childProgressTracker()
-            )
-        )
+        val signedTransaction = serviceHub.signInitialTransaction(transaction, ourIdentity.owningKey)
 
         currentStep(FINALIZING)
-        return subFlow(FinalityFlow(fullySignedTransaction, sessions, FINALIZING.childProgressTracker()))
+        return subFlow(FinalityFlow(signedTransaction, sessions, FINALIZING.childProgressTracker()))
     }
 
     @StartableByRPC

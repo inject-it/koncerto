@@ -4,7 +4,6 @@ import co.paralleluniverse.fibers.Suspendable
 import io.cordacity.koncerto.contract.revocation.RevocationLockContract
 import io.cordacity.koncerto.contract.revocation.RevocationLockState
 import io.cordacity.koncerto.workflow.*
-import net.corda.core.contracts.LinearState
 import net.corda.core.flows.FinalityFlow
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.StartableByRPC
@@ -17,7 +16,7 @@ import net.corda.core.utilities.ProgressTracker
 @StartableByRPC
 @StartableByService
 class CreateRevocationLockFlow(
-    private val linearState: LinearState,
+    private val revocationLock: RevocationLockState<*>,
     private val notary: Party? = null,
     override val progressTracker: ProgressTracker = tracker()
 ) : FlowLogic<SignedTransaction>() {
@@ -31,7 +30,7 @@ class CreateRevocationLockFlow(
     override fun call(): SignedTransaction {
         currentStep(GENERATING)
         val transaction = with(TransactionBuilder(notary ?: firstNotary)) {
-            addOutputState(RevocationLockState.create(ourIdentity, linearState))
+            addOutputState(revocationLock, RevocationLockContract.ID)
             addCommand(RevocationLockContract.Create, ourIdentity.owningKey)
         }
 

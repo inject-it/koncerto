@@ -15,7 +15,6 @@ import io.cordacity.koncerto.workflow.revocation.CreateRevocationLockFlow
 import io.cordacity.koncerto.workflow.revocation.DeleteRevocationLockFlow
 import io.cordacity.koncerto.workflow.revocation.UpdateRevocationLockFlow
 import net.corda.core.concurrent.CordaFuture
-import net.corda.core.contracts.LinearState
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
@@ -32,17 +31,24 @@ import org.junit.jupiter.api.BeforeEach
 
 abstract class MockNetworkFlowTest {
 
-    val CENTRALIZED_NETWORK by lazy { Network("Centralized Network", operator.party) }
-    val DECENTRALIZED_NETWORK by lazy { Network("Decentralized Network") }
+    val CENTRALIZED_NETWORK by lazy {
+        Network("Centralized Network", operator.party)
+    }
 
-    val CENTRALIZED_RELATIONSHIP by lazy { RelationshipState(CENTRALIZED_NETWORK, RELATIONSHIP_CONFIGURATION) }
-    val DECENTRALIZED_RELATIONSHIP by lazy { RelationshipState(DECENTRALIZED_NETWORK, RELATIONSHIP_CONFIGURATION) }
+    val DECENTRALIZED_NETWORK by lazy {
+        Network("Decentralized Network")
+    }
+
+    val CENTRALIZED_RELATIONSHIP by lazy {
+        RelationshipState(CENTRALIZED_NETWORK, RELATIONSHIP_CONFIGURATION)
+    }
+
+    val DECENTRALIZED_RELATIONSHIP by lazy {
+        RelationshipState(DECENTRALIZED_NETWORK, RELATIONSHIP_CONFIGURATION)
+    }
 
     val RELATIONSHIP_CONFIGURATION by lazy {
-        DummyConfig(
-            "Test Relationship",
-            setOf(alice.party, bob.party, charlie.party)
-        )
+        DummyConfig("Test Relationship", setOf(alice.party, bob.party, charlie.party))
     }
 
     private lateinit var _network: MockNetwork
@@ -204,12 +210,6 @@ abstract class MockNetworkFlowTest {
         startFlow(RevokeRelationshipFlow.Initiator(relationship))
     }
 
-    fun StartedMockNode.createRevocationLock(
-        state: LinearState
-    ) = runNetwork {
-        startFlow(CreateRevocationLockFlow(state))
-    }
-
     fun StartedMockNode.issueRelationshipAttestation(
         relationship: StateAndRef<RelationshipState<DummyConfig>>,
         status: AttestationStatus = AttestationStatus.REJECTED,
@@ -234,6 +234,12 @@ abstract class MockNetworkFlowTest {
         attestation: StateAndRef<RelationshipAttestationState>
     ) = runNetwork {
         startFlow(RevokeRelationshipAttestationFlow.Initiator(attestation))
+    }
+
+    fun StartedMockNode.createRevocationLock(
+        revocationLock: RevocationLockState<*>
+    ) = runNetwork {
+        startFlow(CreateRevocationLockFlow(revocationLock))
     }
 
     fun StartedMockNode.updateRevocationLock(
