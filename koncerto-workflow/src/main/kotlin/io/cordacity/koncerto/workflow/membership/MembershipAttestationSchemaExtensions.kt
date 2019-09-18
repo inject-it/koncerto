@@ -22,24 +22,20 @@ fun MembershipAttestationSchema.getQueryCriteria(
 fun MembershipAttestationSchema.getQueryCriteria(
     network: Network,
     attestee: AbstractParty,
+    membershipStateRef: StateRef? = null,
     status: Vault.StateStatus = Vault.StateStatus.UNCONSUMED
 ): QueryCriteria = builder {
-    return VaultQueryCriteria(status)
-        .and(VaultCustomQueryCriteria(MembershipAttestationEntity::networkHash.equal(network.hash.toString())))
-        .and(VaultCustomQueryCriteria(MembershipAttestationEntity::attestee.equal(attestee)))
-}
-
-fun MembershipAttestationSchema.getQueryCriteria(
-    network: Network,
-    attestee: AbstractParty,
-    membershipStateRef: StateRef,
-    status: Vault.StateStatus = Vault.StateStatus.UNCONSUMED
-): QueryCriteria = builder {
-    val hash = membershipStateRef.txhash.toString()
-    val index = membershipStateRef.index
-    return VaultQueryCriteria(status)
-        .and(VaultCustomQueryCriteria(MembershipAttestationEntity::networkHash.equal(network.hash.toString())))
-        .and(VaultCustomQueryCriteria(MembershipAttestationEntity::attestee.equal(attestee)))
-        .and(VaultCustomQueryCriteria(MembershipAttestationEntity::membershipStateRefHash.equal(hash)))
-        .and(VaultCustomQueryCriteria(MembershipAttestationEntity::membershipStateRefIndex.equal(index)))
+    return if (membershipStateRef == null) {
+        VaultQueryCriteria(status)
+            .and(VaultCustomQueryCriteria(MembershipAttestationEntity::networkHash.equal(network.hash.toString())))
+            .and(VaultCustomQueryCriteria(MembershipAttestationEntity::attestee.equal(attestee)))
+    } else {
+        val hash = membershipStateRef.txhash.toString()
+        val index = membershipStateRef.index
+        VaultQueryCriteria(status)
+            .and(VaultCustomQueryCriteria(MembershipAttestationEntity::networkHash.equal(network.hash.toString())))
+            .and(VaultCustomQueryCriteria(MembershipAttestationEntity::attestee.equal(attestee)))
+            .and(VaultCustomQueryCriteria(MembershipAttestationEntity::membershipStateRefHash.equal(hash)))
+            .and(VaultCustomQueryCriteria(MembershipAttestationEntity::membershipStateRefIndex.equal(index)))
+    }
 }

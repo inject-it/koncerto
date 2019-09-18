@@ -23,20 +23,16 @@ fun MembershipSchema.getQueryCriteria(
 fun MembershipSchema.getQueryCriteria(
     network: Network,
     networkIdentity: AbstractParty,
+    previousStateRef: StateRef? = null,
     status: Vault.StateStatus = Vault.StateStatus.UNCONSUMED
 ): QueryCriteria = builder {
-    return VaultQueryCriteria(status)
-        .and(VaultCustomQueryCriteria(MembershipEntity::networkHash.equal(network.hash.toString())))
-        .and(VaultCustomQueryCriteria(MembershipEntity::networkIdentity.equal(networkIdentity)))
-}
-
-fun MembershipSchema.getQueryCriteria(
-    network: Network,
-    networkIdentity: AbstractParty,
-    previousStateRef: StateRef,
-    status: Vault.StateStatus = Vault.StateStatus.UNCONSUMED
-): QueryCriteria = builder {
-    val hash = SecureHash.sha256("${network.hash}$networkIdentity$previousStateRef")
-    return VaultQueryCriteria(status)
-        .and(VaultCustomQueryCriteria(MembershipEntity::hash.equal(hash.toString())))
+    return if (previousStateRef == null) {
+        VaultQueryCriteria(status)
+            .and(VaultCustomQueryCriteria(MembershipEntity::networkHash.equal(network.hash.toString())))
+            .and(VaultCustomQueryCriteria(MembershipEntity::networkIdentity.equal(networkIdentity)))
+    } else {
+        val hash = SecureHash.sha256("${network.hash}$networkIdentity$previousStateRef")
+        VaultQueryCriteria(status)
+            .and(VaultCustomQueryCriteria(MembershipEntity::hash.equal(hash.toString())))
+    }
 }

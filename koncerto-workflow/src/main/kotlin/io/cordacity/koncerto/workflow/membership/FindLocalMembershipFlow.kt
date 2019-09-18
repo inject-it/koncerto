@@ -12,7 +12,7 @@ import net.corda.core.flows.StartableByRPC
 import net.corda.core.flows.StartableByService
 import net.corda.core.identity.AbstractParty
 import net.corda.core.node.services.Vault
-import net.corda.core.node.services.vault.builder
+import net.corda.core.node.services.queryBy
 import net.corda.core.utilities.ProgressTracker
 
 @StartableByRPC
@@ -45,14 +45,7 @@ class FindLocalMembershipFlow private constructor(
 
     override fun call(): List<StateAndRef<MembershipState<*>>> {
         currentStep(QUERYING)
-        return builder {
-            val criteria = if (previousStateRef == null) {
-                MembershipSchema.getQueryCriteria(network, networkIdentity, status)
-            } else {
-                MembershipSchema.getQueryCriteria(network, networkIdentity, previousStateRef, status)
-            }
-
-            serviceHub.vaultService.queryBy(MembershipState::class.java, criteria)
-        }.states
+        val criteria = MembershipSchema.getQueryCriteria(network, networkIdentity, previousStateRef, status)
+        return serviceHub.vaultService.queryBy<MembershipState<*>>(criteria).states
     }
 }
